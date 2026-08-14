@@ -348,6 +348,11 @@ code {
   font-size: clamp(3rem, 8vw, 6.4rem);
 }
 
+html[lang="zh-CN"] .article-hero h1 {
+  max-width: 10ch;
+  line-height: 1.05;
+}
+
 .article-deck {
   max-width: 68ch;
   margin: 24px 0 0;
@@ -575,6 +580,12 @@ textarea:focus-visible {
 
   .article-hero h1 {
     font-size: clamp(2.65rem, 15vw, 4rem);
+  }
+
+  html[lang="zh-CN"] .article-hero h1 {
+    max-width: none;
+    font-size: 2.45rem;
+    word-break: keep-all;
   }
 
   .article-proof > div {
