@@ -33,6 +33,8 @@ function localMarkdownTargets(markdown: string): string[] {
     .map(target => decodeURIComponent(target.split('#', 1)[0] ?? ''))
 }
 
+const frozenPilotDate = '2026-08-14'
+
 describe('catalog calculator publishing contract', () => {
   it('ships every referenced static asset and required DOM target', async () => {
     const assets = ['index.html', 'app.js', 'styles.css', 'favicon.svg']
@@ -118,6 +120,64 @@ describe('catalog calculator publishing contract', () => {
     const appSource = await readFile(appPath, 'utf8')
     expect(appSource).toContain('Source: benchmark/run.ts + benchmark/README.md')
     expect(appSource).not.toContain('benchmark.json and benchmark/README.md')
+  })
+
+  it('publishes bilingual, crawlable study pages with the frozen pilot boundary', async () => {
+    const englishPath = join(siteRoot, '1000-tool-tax', 'index.html')
+    const chinesePath = join(siteRoot, 'zh-CN', '1000-tool-tax', 'index.html')
+    const [english, chinese, home, robots, sitemap, styles] = await Promise.all([
+      readFile(englishPath, 'utf8'),
+      readFile(chinesePath, 'utf8'),
+      readFile(join(siteRoot, 'index.html'), 'utf8'),
+      readFile(join(siteRoot, 'robots.txt'), 'utf8'),
+      readFile(join(siteRoot, 'sitemap.xml'), 'utf8'),
+      readFile(join(siteRoot, 'styles.css'), 'utf8'),
+    ])
+
+    expect(home).toContain('href="./1000-tool-tax/"')
+    expect(english).toContain('rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/"')
+    expect(chinese).toContain('rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/1000-tool-tax/"')
+    expect(english).toContain('href="../styles.css"')
+    expect(chinese).toContain('href="../../styles.css"')
+    for (const html of [english, chinese]) {
+      expect(html).toContain('hreflang="en"')
+      expect(html).toContain('hreflang="zh-CN"')
+      expect(html).toContain(`"datePublished": "${frozenPilotDate}"`)
+      expect(html).toContain(`"dateModified": "${frozenPilotDate}"`)
+      expect(html).toContain('674,249 B')
+      expect(html).toContain('27,401 B')
+      expect(html).toContain('$0.0307204')
+      expect(html).toContain('$0.0034707')
+      expect(html).toContain('61.711%')
+      expect(html).toContain('491')
+      expect(html).toContain('794')
+      expect(html).not.toContain('2026-08-15')
+      expect(html).not.toMatch(/<script(?!\s+type="application\/ld\+json")/)
+    }
+
+    expect(english).toContain('pricing retrieved on August 14, 2026')
+    expect(english).toContain('Published August 14, 2026')
+    expect(english).toContain('href="../"')
+    expect(english).toContain('href="../zh-CN/1000-tool-tax/"')
+    expect(chinese).toContain('2026-08-14 抓取的 DeepSeek 价格')
+    expect(chinese).toContain('发布于 2026-08-14')
+    expect(chinese).toContain('href="../../"')
+    expect(chinese).toContain('href="../../1000-tool-tax/"')
+    expect(english).toContain('aggregate usage accounting')
+    expect(chinese).toContain('聚合 Usage 计算')
+    expect(robots).toContain('Sitemap: https://labmimors.github.io/dsh-mcp-lens/sitemap.xml')
+    expect(sitemap).toContain('<loc>https://labmimors.github.io/dsh-mcp-lens/</loc>')
+    expect(sitemap).toContain('<loc>https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/</loc>')
+    expect(sitemap).toContain('<loc>https://labmimors.github.io/dsh-mcp-lens/zh-CN/1000-tool-tax/</loc>')
+
+    await Promise.all([
+      access(join(siteRoot, 'favicon.svg')),
+      access(join(siteRoot, 'styles.css')),
+    ])
+
+    expect(styles).toContain('.article-shell')
+    expect(styles).toContain('.article-proof')
+    expect(styles).toContain('width: min(1040px, calc(100% - 20px));')
   })
 
   it('pins every Pages action to the reviewed immutable revision', async () => {

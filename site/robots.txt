@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://labmimors.github.io/dsh-mcp-lens/sitemap.xml
