@@ -18,7 +18,7 @@ MCP Lens 让 DeepSeek Harness 通过两个稳定入口搜索并调用 1,000 个�
 - 完成率没有靠“缩能力”换出来：两侧都完成了 `3/3` 个已测任务。
 - 工具偏移和风险更可控：模型只会看到排序候选的准确 Schema，而最终 `server/tool` 仍受 `allowTools` / `denyTools` 限制。
 
-可以直接试试[本地目录测量页](https://labmimors.github.io/dsh-mcp-lens/)：把你当前的工具 Schema 粘进去，浏览器会本地计算准确 UTF-8 bytes，并生成可分享的对比卡片。
+可以直接试试[本地目录测量页](https://labmimors.github.io/dsh-mcp-lens/)：把你当前的工具 Schema 粘进去，浏览器会本地计算准确 UTF-8 bytes，并生成可分享的对比卡片。如果希望把它变成可重复的 CI 约束，可以用 [Schema 预算 Action](#在-ci-里阻止-schema-失控增长)，在工具数量或 Schema 字节超过上限时让 Workflow 失败。
 
 <p align="center">
   <img src="assets/mcp-lens-comparison.zh-CN.svg" alt="DeepSeek Harness 实测对比：两侧都完成三项任务，MCP Lens 大幅减少模型可见工具、请求工具 JSON 和预估 API 成本" width="100%">
@@ -194,6 +194,33 @@ npm run bench -- --output benchmark.json
 ```
 
 准确指标、Fixture、依赖版本、源码摘要和测量限制见 [`benchmark/README.md`](benchmark/README.md)。
+
+## 在 CI 里阻止 Schema 失控增长
+
+零依赖的 **MCP Lens Schema Audit** GitHub Action 会在 Runner 内测量导出的模型可见工具载荷。它不发网络请求，只写数字 Output，也不会把工具名称、描述或 Schema 复制到 Step Summary。配置预算后，意外扩大的工具面会直接让检查失败。
+
+支持的 JSON 形式包括工具数组、`{ "tools": [...] }`、`{ "schemas": [...] }`，以及记录的 `{ "request": { "header": { "tools": [...] } } }`。
+
+```yaml
+name: MCP schema budget
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: labmimors/dsh-mcp-lens@687cf5fc0de83ac4f5f496133e342fa821d7eaed
+        with:
+          tools-file: artifacts/request-header.json
+          max-tools: 100
+          max-schema-bytes: 65536
+```
+
+Action 接受最大 64 MiB 的文件，把输入限制在 `GITHUB_WORKSPACE` 内，并拒绝符号链接越界。这里测量的是标准 `JSON.stringify(tools)` 的 UTF-8 字节，不是 Token、账单、延迟或任务质量。
 
 ## 稳定性与资源控制
 

@@ -18,7 +18,7 @@ At a glance:
 - Keep task quality grounded in evidence: both arms completed `3/3` tested tasks, rather than trading reach for a synthetic win.
 - Narrow tool-choice drift and risk: the model sees exact schemas only for ranked matches, while `allowTools` and `denyTools` gate the final `server/tool`.
 
-Try the [local-only catalog calculator](https://labmimors.github.io/dsh-mcp-lens/) to measure your current tool-schema bytes in the browser and generate a shareable comparison card.
+Try the [local-only catalog calculator](https://labmimors.github.io/dsh-mcp-lens/) to measure your current tool-schema bytes in the browser and generate a shareable comparison card. Prefer a repeatable CI guard? Use the [schema budget Action](#keep-schema-drift-out-of-ci) to fail a workflow when tool count or schema bytes drift above your limit.
 
 <p align="center">
   <img src="assets/mcp-lens-comparison.svg" alt="Live DeepSeek Harness comparison: MCP Lens reduced model-visible tools, request tool JSON, and estimated API cost while both arms completed three of three tasks" width="100%">
@@ -194,6 +194,33 @@ npm run bench -- --output benchmark.json
 ```
 
 The exact metric, fixture, dependency versions, source digest, and measurement limits are in [`benchmark/README.md`](benchmark/README.md).
+
+## Keep schema drift out of CI
+
+The dependency-free **MCP Lens Schema Audit** GitHub Action measures an exported model-facing tool payload inside the runner. It makes no network request, writes only numeric outputs, and never copies tool names, descriptions, or schemas into the Step Summary. Optional budgets turn an unexpected schema expansion into a failing check.
+
+Accepted JSON shapes are a tool array, `{ "tools": [...] }`, `{ "schemas": [...] }`, or a recorded `{ "request": { "header": { "tools": [...] } } }` payload.
+
+```yaml
+name: MCP schema budget
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: labmimors/dsh-mcp-lens@687cf5fc0de83ac4f5f496133e342fa821d7eaed
+        with:
+          tools-file: artifacts/request-header.json
+          max-tools: 100
+          max-schema-bytes: 65536
+```
+
+The action accepts files up to 64 MiB, resolves the input inside `GITHUB_WORKSPACE`, and rejects symlink escapes. The byte metric is canonical `JSON.stringify(tools)` UTF-8 size—not tokens, billing, latency, or task quality.
 
 ## Reliability and resource controls
 
