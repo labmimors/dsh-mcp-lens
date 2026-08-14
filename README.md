@@ -227,7 +227,7 @@ See the shipped [`cordis.patch.yml`](cordis.patch.yml) for the canonical default
 
 ## Security, development, and community
 
-- Useful on your catalog? [Star the repository](https://github.com/labmimors/dsh-mcp-lens) and share the catalog size you tested; real workloads help the next user decide.
+- Useful on your catalog? [Star the repository](https://github.com/labmimors/dsh-mcp-lens) and [share the catalog size you tested](https://github.com/labmimors/dsh-mcp-lens/discussions/7); real workloads help the next user decide.
 - Security reports: read [`SECURITY.md`](SECURITY.md); do not disclose an unpatched exploit in a public issue.
 - Contributions: read [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - Search quality: [submit a sanitized search miss](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml) and help turn it into a regression fixture.
