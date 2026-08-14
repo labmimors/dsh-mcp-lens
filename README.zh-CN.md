@@ -20,6 +20,14 @@ MCP Lens 让 DeepSeek Harness 通过两个稳定入口搜索并调用 1,000 个�
 
 可以直接试试[本地目录测量页](https://labmimors.github.io/dsh-mcp-lens/)：把你当前的工具 Schema 粘进去，浏览器会本地计算准确 UTF-8 bytes，并生成可分享的对比卡片。
 
+如果你想把同样的测量放进 CI，这个仓库也附带了一个零依赖 GitHub Action：读取仓库内的工具 JSON，输出模型可见工具数、标准 Schema 字节数，以及相对 Lens 固定两工具面的字节降幅。
+
+```yaml
+- uses: labmimors/dsh-mcp-lens@v0.1.0-rc.3
+  with:
+    tools-file: fixtures/request-header-tools.json
+```
+
 <p align="center">
   <img src="assets/mcp-lens-comparison.zh-CN.svg" alt="DeepSeek Harness 实测对比：两侧都完成三项任务，MCP Lens 大幅减少模型可见工具、请求工具 JSON 和预估 API 成本" width="100%">
 </p>

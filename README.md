@@ -20,6 +20,14 @@ At a glance:
 
 Try the [local-only catalog calculator](https://labmimors.github.io/dsh-mcp-lens/) to measure your current tool-schema bytes in the browser and generate a shareable comparison card.
 
+Need the same measurement in CI? This repository also ships a dependency-free GitHub Action that audits a checked-in tool payload and reports the model-facing tool count, canonical schema bytes, and byte reduction versus the fixed two-tool Lens surface.
+
+```yaml
+- uses: labmimors/dsh-mcp-lens@v0.1.0-rc.3
+  with:
+    tools-file: fixtures/request-header-tools.json
+```
+
 <p align="center">
   <img src="assets/mcp-lens-comparison.svg" alt="Live DeepSeek Harness comparison: MCP Lens reduced model-visible tools, request tool JSON, and estimated API cost while both arms completed three of three tasks" width="100%">
 </p>
