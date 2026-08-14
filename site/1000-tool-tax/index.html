@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The 1,000-tool tax: measuring large MCP catalogs</title>
+    <meta name="description" content="A measured DeepSeek Harness study of what happens when 1,000 MCP tool schemas stay model-visible, with a reproducible component benchmark and explicit tradeoffs." />
+    <link rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/" />
+    <link rel="alternate" hreflang="en" href="https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/1000-tool-tax/" />
+    <link rel="alternate" hreflang="x-default" href="https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="The 1,000-tool tax: measuring large MCP catalogs" />
+    <meta property="og:description" content="Same Harness, same 1,000-tool fixture, same three tasks. What changed when the model saw two MCP interfaces instead of every remote schema?" />
+    <meta property="og:url" content="https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/" />
+    <meta property="og:image" content="https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "The 1,000-tool tax: measuring large MCP catalogs",
+        "description": "A measured DeepSeek Harness study with a reproducible component benchmark for 1,000 model-visible MCP tool schemas.",
+        "datePublished": "2026-08-14",
+        "dateModified": "2026-08-14",
+        "author": { "@type": "Organization", "name": "MCP Lens contributors" },
+        "url": "https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/",
+        "codeRepository": "https://github.com/labmimors/dsh-mcp-lens"
+      }
+    </script>
+  </head>
+  <body>
+    <main class="page article-shell">
+      <nav class="article-nav" aria-label="Article navigation">
+        <a href="../">Catalog calculator</a>
+        <a href="https://github.com/labmimors/dsh-mcp-lens">GitHub</a>
+        <a lang="zh-CN" href="../zh-CN/1000-tool-tax/">中文</a>
+      </nav>
+
+      <article class="article">
+        <header class="article-hero">
+          <p class="eyebrow">Measured DeepSeek Harness study</p>
+          <h1>The 1,000-tool tax</h1>
+          <p class="article-deck">Large MCP catalogs have a standing cost before the model calls anything: every visible tool schema becomes part of the choice set and request payload. This study measures that cost, tests one progressive-disclosure design, and publishes the tradeoff.</p>
+          <p class="article-meta">Published August 14, 2026 · DeepSeek Harness 0.1.0-rc.6 · Independent community research</p>
+        </header>
+
+        <section class="article-proof" aria-label="Measured pilot results">
+          <div><span>Full model-facing tools</span><strong>1,025 → 27</strong></div>
+          <div><span>request/header.tools JSON</span><strong>674,249 B → 27,401 B</strong></div>
+          <div><span>Three-task completion</span><strong>3/3 → 3/3</strong></div>
+          <div><span>Estimated pilot cost</span><strong>$0.0307204 → $0.0034707</strong></div>
+        </section>
+
+        <div class="article-body">
+          <p class="article-lead">The useful question is not “Is MCP expensive?” It is: <strong>how much standing tool information does this specific client put in this specific model request?</strong> Tool count, JSON bytes, tokenizer tokens, provider billing, latency, and task quality are different measurements. This experiment keeps them separate.</p>
+
+          <h2 id="problem">The hidden fixed cost</h2>
+          <p>A direct MCP client can register every remote tool as a model-visible function. That is simple and usually correct for a small catalog. At 1,000 tools, however, the model receives 1,000 names, descriptions, and input schemas even when the current task needs one of them.</p>
+          <p>The cost is workload-dependent. A handful of hot-path tools may be better exposed directly. A large, multi-server, long-tail catalog creates a different problem: most schemas are irrelevant on most turns, yet they remain in the request unless the harness provides progressive disclosure.</p>
+
+          <h2 id="design">Two stable interfaces, exact schemas on demand</h2>
+          <p>MCP Lens is a DeepSeek Harness plugin that keeps the remote MCP catalog behind two model-facing interfaces:</p>
+          <ol>
+            <li><code>mcp_search(query)</code> ranks candidate tools locally and returns the selected tools' exact <code>inputSchema</code>.</li>
+            <li><code>mcp_call(server, tool, arguments)</code> invokes the explicit remote server/tool pair.</li>
+          </ol>
+          <p>The remote tools do not disappear and their schemas are not summarized. The difference is timing: the complete catalog stays local; exact schemas enter model context only after search selects them.</p>
+          <aside class="article-callout"><strong>Security posture:</strong> <code>allowTools</code> defaults to an empty set, <code>denyTools</code> always wins, and proxy-added metadata such as <code>_meta</code>, icons, output schemas, signed URLs, and resource bodies is not forwarded to the model. MCP Lens is not a sandbox; configured servers still execute with their host or network permissions.</aside>
+
+          <h2 id="method">What the pilot froze</h2>
+          <ul>
+            <li>DeepSeek Harness <code>0.1.0-rc.6</code> and DeepSeek V4 Flash.</li>
+            <li>The same generated 1,000-tool local stdio MCP server.</li>
+            <li>The same three tasks: customer lookup, order lookup, and GitHub lookup.</li>
+            <li>The same 25 non-MCP Harness tools in both arms.</li>
+            <li>Provider-reported usage; cost recomputed from DeepSeek pricing retrieved on August 14, 2026.</li>
+          </ul>
+          <p>That is why the full tool counts are 1,025 and 27: both arms include the same 25 Harness tools. The MCP-only comparison is 1,000 remote schemas versus <code>mcp_search</code> and <code>mcp_call</code>.</p>
+
+          <div class="article-table-wrap">
+            <table>
+              <thead><tr><th>Measurement</th><th>Direct MCP client</th><th>MCP Lens</th><th>Interpretation</th></tr></thead>
+              <tbody>
+                <tr><td>Complete model-facing tools</td><td>1,025</td><td>27</td><td>Includes 25 shared non-MCP tools</td></tr>
+                <tr><td>MCP-facing interfaces</td><td>1,000</td><td>2</td><td>Remote catalog remains reachable</td></tr>
+                <tr><td><code>request/header.tools</code> JSON</td><td>674,249 B</td><td>27,401 B</td><td>Exact UTF-8 bytes, not tokens</td></tr>
+                <tr><td>Task completion</td><td>3/3</td><td>3/3</td><td>Three tasks, not a broad quality score</td></tr>
+                <tr><td>Estimated API cost</td><td>$0.0307204</td><td>$0.0034707</td><td>Uses the dated price snapshot</td></tr>
+                <tr><td>Output tokens</td><td>491</td><td>794</td><td>Lens added search and more output</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="tradeoff">The result is not “free compression”</h2>
+          <p>Lens adds an explicit search step. In this pilot, output tokens increased by 61.711%, from 491 to 794. Cold discovery also has connection and catalog work. The input-heavy reduction outweighed that cost in these three tasks, but a small catalog or frequently reused direct tools may not benefit.</p>
+          <p>No universal latency claim follows from this study. No universal cost claim follows either: model prices change, cache behavior changes the bill, and different tasks may need more search iterations.</p>
+
+          <h2 id="decision">When to try it</h2>
+          <div class="article-decision-grid">
+            <section><h3>Good candidate</h3><ul><li>Dozens to thousands of tools</li><li>Multiple MCP servers</li><li>Long-tail capabilities</li><li>Tool schemas dominate standing input</li></ul></section>
+            <section><h3>Probably keep direct tools</h3><ul><li>A few fixed tools</li><li>Most tools are used every turn</li><li>Minimum first-step latency matters most</li><li>The model already receives a small schema surface</li></ul></section>
+          </div>
+
+          <h2 id="reproduce">Measure before you install</h2>
+          <p>The <a href="../">local-only catalog calculator</a> accepts a sanitized tool array, <code>{"tools":[...]}</code>, <code>{"schemas":[...]}</code>, or a recorded <code>request.header.tools</code> payload. It calculates canonical <code>JSON.stringify(...)</code> UTF-8 bytes in your browser and does not upload the pasted schemas.</p>
+          <pre><code>dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.3/dsh-mcp-lens-0.1.0-rc.3.tgz
+dsh --profile web</code></pre>
+          <p>The repository includes a reproducible component benchmark runner, a dated live-pilot method with aggregate usage accounting, tests, and security limits. If search misses a real tool, share a sanitized case in the <a href="https://github.com/labmimors/dsh-mcp-lens/discussions/11">MCP Catalog Challenge</a>; real counterexamples are more useful than praise.</p>
+        </div>
+
+        <footer class="article-footer">
+          <a class="button button-primary" href="https://github.com/labmimors/dsh-mcp-lens">Inspect the source and benchmark</a>
+          <a class="button button-secondary" href="../">Measure your catalog locally</a>
+        </footer>
+      </article>
+    </main>
+  </body>
+</html>

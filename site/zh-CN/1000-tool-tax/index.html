@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1000 个工具的固定成本：实测大型 MCP 目录</title>
+    <meta name="description" content="同一 DeepSeek Harness、同一 1000 工具目录、同样三项任务：测量模型每轮看见全部 MCP Schema 的固定成本、收益与代价。" />
+    <link rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/1000-tool-tax/" />
+    <link rel="alternate" hreflang="en" href="https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/1000-tool-tax/" />
+    <link rel="alternate" hreflang="x-default" href="https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="1000 个工具的固定成本：实测大型 MCP 目录" />
+    <meta property="og:description" content="同一 Harness、同一 1000 工具目录、同样三项任务。模型只看见两个 MCP 入口后，哪些数字变了？" />
+    <meta property="og:url" content="https://labmimors.github.io/dsh-mcp-lens/zh-CN/1000-tool-tax/" />
+    <meta property="og:image" content="https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "1000 个工具的固定成本：实测大型 MCP 目录",
+        "description": "一项带有可复现组件 Benchmark 的 DeepSeek Harness 大型 MCP 目录实测。",
+        "inLanguage": "zh-CN",
+        "datePublished": "2026-08-14",
+        "dateModified": "2026-08-14",
+        "author": { "@type": "Organization", "name": "MCP Lens contributors" },
+        "url": "https://labmimors.github.io/dsh-mcp-lens/zh-CN/1000-tool-tax/",
+        "codeRepository": "https://github.com/labmimors/dsh-mcp-lens"
+      }
+    </script>
+  </head>
+  <body>
+    <main class="page article-shell">
+      <nav class="article-nav" aria-label="文章导航">
+        <a href="../../">目录测量页</a>
+        <a href="https://github.com/labmimors/dsh-mcp-lens">GitHub</a>
+        <a lang="en" href="../../1000-tool-tax/">English</a>
+      </nav>
+
+      <article class="article">
+        <header class="article-hero">
+          <p class="eyebrow">DeepSeek Harness 实测</p>
+          <h1>1000 个工具的固定成本</h1>
+          <p class="article-deck">大型 MCP 目录在模型真正调用工具之前就有固定成本：所有可见工具 Schema 都会进入选择集合和请求载荷。这次实验测量这部分成本，测试按需披露方案，并公开它的代价。</p>
+          <p class="article-meta">发布于 2026-08-14 · DeepSeek Harness 0.1.0-rc.6 · 独立社区研究</p>
+        </header>
+
+        <section class="article-proof" aria-label="三任务实测结果">
+          <div><span>完整模型可见工具</span><strong>1,025 → 27</strong></div>
+          <div><span>request/header.tools JSON</span><strong>674,249 B → 27,401 B</strong></div>
+          <div><span>三项任务完成</span><strong>3/3 → 3/3</strong></div>
+          <div><span>三任务预估费用</span><strong>$0.0307204 → $0.0034707</strong></div>
+        </section>
+
+        <div class="article-body">
+          <p class="article-lead">真正有用的问题不是「MCP 贵不贵」，而是：<strong>这个客户端在这次模型请求里放了多少常驻工具信息？</strong>工具数量、JSON 字节、Tokenizer Token、Provider 计费、延迟与任务质量是不同指标，本实验分别记录。</p>
+
+          <h2 id="problem">隐藏的固定成本</h2>
+          <p>直接 MCP 客户端可以把每个远端工具注册成模型可见函数。目录很小时，这条路径简单直接；但目录达到 1000 个工具后，即使当前任务只需要一个工具，模型仍可能收到 1000 份名称、描述与输入 Schema。</p>
+          <p>这不是所有工作负载都会遇到的问题。少量高频工具通常适合直接暴露；多 Server、大目录、长尾能力则不同：绝大多数 Schema 在大多数轮次无关，却会持续进入请求，除非 Harness 提供按需披露。</p>
+
+          <h2 id="design">两个稳定入口，按需返回准确 Schema</h2>
+          <p>MCP Lens 是一个 DeepSeek Harness 插件，把远端 MCP 目录放在两个模型入口后：</p>
+          <ol>
+            <li><code>mcp_search(query)</code> 在本地排序候选，只返回命中工具的准确 <code>inputSchema</code>。</li>
+            <li><code>mcp_call(server, tool, arguments)</code> 调用明确指定的远端 Server 与工具。</li>
+          </ol>
+          <p>远端工具没有消失，Schema 也没有被概括或改写。变化的是时机：完整目录留在本地，准确 Schema 只在搜索命中后进入模型上下文。</p>
+          <aside class="article-callout"><strong>安全边界：</strong><code>allowTools</code> 默认空集，<code>denyTools</code> 永远优先；代理新增的 <code>_meta</code>、图标、输出 Schema、签名 URL 与资源正文不会转发给模型。MCP Lens 不是沙箱，配置的 Server 仍会使用宿主机或网络权限执行。</aside>
+
+          <h2 id="method">实验固定了什么</h2>
+          <ul>
+            <li>DeepSeek Harness <code>0.1.0-rc.6</code> 与 DeepSeek V4 Flash。</li>
+            <li>同一个生成的 1000 工具本地 stdio MCP Server。</li>
+            <li>同样三项任务：客户查询、订单查询、GitHub 查询。</li>
+            <li>两组共用相同的 25 个非 MCP Harness 工具。</li>
+            <li>Provider 返回的 Usage；费用按 2026-08-14 抓取的 DeepSeek 价格重算。</li>
+          </ul>
+          <p>因此完整工具数量是 1025 和 27：两组都含 25 个 Harness 工具。只看 MCP 工具面，则是 1000 份远端 Schema 对比 <code>mcp_search</code> 与 <code>mcp_call</code>。</p>
+
+          <div class="article-table-wrap">
+            <table>
+              <thead><tr><th>测量项</th><th>直接 MCP 客户端</th><th>MCP Lens</th><th>如何理解</th></tr></thead>
+              <tbody>
+                <tr><td>完整模型可见工具</td><td>1,025</td><td>27</td><td>包含 25 个共用非 MCP 工具</td></tr>
+                <tr><td>MCP 模型入口</td><td>1,000</td><td>2</td><td>远端目录仍可调用</td></tr>
+                <tr><td><code>request/header.tools</code> JSON</td><td>674,249 B</td><td>27,401 B</td><td>准确 UTF-8 字节，不是 Token</td></tr>
+                <tr><td>任务完成</td><td>3/3</td><td>3/3</td><td>三项任务，不是通用质量分数</td></tr>
+                <tr><td>预估 API 费用</td><td>$0.0307204</td><td>$0.0034707</td><td>使用注明日期的价格</td></tr>
+                <tr><td>输出 Token</td><td>491</td><td>794</td><td>Lens 增加搜索和更多输出</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="tradeoff">它不是「免费压缩」</h2>
+          <p>Lens 会增加一次明确搜索。这组三项任务中，输出 Token 从 491 增到 794，增加 61.711%；首次冷发现也包含连接和目录工作。此次实验里，输入侧的减少超过了新增开销，但小目录或高频固定工具未必受益。</p>
+          <p>这项实验不能推出通用延迟结论，也不能推出所有工作负载都省钱：模型价格会变，缓存行为会改变账单，不同任务也可能需要更多搜索轮次。</p>
+
+          <h2 id="decision">什么场景值得尝试</h2>
+          <div class="article-decision-grid">
+            <section><h3>适合尝试</h3><ul><li>几十到几千个工具</li><li>多个 MCP Server</li><li>大量长尾能力</li><li>工具 Schema 占据大量常驻输入</li></ul></section>
+            <section><h3>直接工具可能更简单</h3><ul><li>只有几个固定工具</li><li>大部分工具每轮都会使用</li><li>最看重首次调用延迟</li><li>模型当前只收到很小的工具面</li></ul></section>
+          </div>
+
+          <h2 id="reproduce">先测量，再决定安装</h2>
+          <p><a href="../../">本地目录测量页</a>支持脱敏后的工具数组、<code>{"tools":[...]}</code>、<code>{"schemas":[...]}</code> 或记录的 <code>request.header.tools</code>。页面只在浏览器里计算标准 <code>JSON.stringify(...)</code> 的 UTF-8 字节，不上传粘贴内容。</p>
+          <pre><code>dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.3/dsh-mcp-lens-0.1.0-rc.3.tgz
+dsh --profile web</code></pre>
+          <p>仓库包含可复现的组件 Benchmark Runner、带日期的真模型实验方法与聚合 Usage 计算、测试与安全限制。如果真实工具没有被搜索命中，可以在 <a href="https://github.com/labmimors/dsh-mcp-lens/discussions/11">MCP 目录挑战</a>中提交脱敏案例；可复现反例比一句「好用」更有价值。</p>
+        </div>
+
+        <footer class="article-footer">
+          <a class="button button-primary" href="https://github.com/labmimors/dsh-mcp-lens">查看源码与 Benchmark</a>
+          <a class="button button-secondary" href="../../">在本地测量你的目录</a>
+        </footer>
+      </article>
+    </main>
+  </body>
+</html>
