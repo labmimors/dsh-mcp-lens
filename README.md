@@ -213,7 +213,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - uses: labmimors/dsh-mcp-lens@687cf5fc0de83ac4f5f496133e342fa821d7eaed
+      - uses: labmimors/dsh-mcp-lens@6a7e006fd63887fecf2ce1e70a54af26e0df1378
         with:
           tools-file: artifacts/request-header.json
           max-tools: 100
