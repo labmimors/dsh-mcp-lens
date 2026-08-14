@@ -1,0 +1,46 @@
+name: action-smoke
+
+on:
+  pull_request:
+    paths:
+      - action.yml
+      - action/**
+      - .github/workflows/action-smoke.yml
+  push:
+    branches:
+      - main
+    paths:
+      - action.yml
+      - action/**
+      - .github/workflows/action-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  local-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Create a model-facing tool fixture
+        run: >-
+          node -e "require('node:fs').writeFileSync('.action-smoke-tools.json',
+          JSON.stringify([{name:'alpha',inputSchema:{type:'object'}},
+          {name:'beta',inputSchema:{type:'object'}}]))"
+      - id: audit
+        uses: ./
+        with:
+          tools-file: .action-smoke-tools.json
+          max-tools: 2
+          max-schema-bytes: 1024
+      - name: Verify numeric outputs
+        env:
+          TOOL_COUNT: ${{ steps.audit.outputs.tool-count }}
+          LENS_TOOL_COUNT: ${{ steps.audit.outputs.lens-tool-count }}
+          SCHEMA_BYTES: ${{ steps.audit.outputs.schema-bytes }}
+        run: |
+          test "$TOOL_COUNT" = "2"
+          test "$LENS_TOOL_COUNT" = "2"
+          case "$SCHEMA_BYTES" in
+            ''|*[!0-9]*) exit 1 ;;
+          esac

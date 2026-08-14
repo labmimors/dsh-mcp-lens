@@ -1,6 +1,6 @@
 {
   "name": "dsh-mcp-lens",
-  "version": "0.1.0-rc.3",
+  "version": "0.1.0-rc.4",
   "description": "Cut MCP context and API cost in DeepSeek Harness with two model-facing tools, lazy discovery, and exact-schema calls",
   "keywords": [
     "deepseek",
@@ -31,7 +31,12 @@
   "files": [
     "lib",
     "src",
-    "tests",
+    "tests/catalog.spec.ts",
+    "tests/fixture-server.ts",
+    "tests/integration.spec.ts",
+    "tests/invalidating-fixture-server.ts",
+    "tests/policy.spec.ts",
+    "tests/pool.spec.ts",
     "benchmark",
     "assets/mcp-lens-comparison.svg",
     "assets/mcp-lens-comparison.zh-CN.svg",
