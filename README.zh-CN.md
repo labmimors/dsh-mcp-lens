@@ -236,7 +236,7 @@ MCP Lens 不是沙箱：stdio Server 仍会在宿主机执行，HTTP Server 仍�
 
 ## 安全、开发与社区
 
-- 如果 Lens 对你的工具库确实有用，请[为仓库加 Star](https://github.com/labmimors/dsh-mcp-lens)，并[分享你测试的工具数量](https://github.com/labmimors/dsh-mcp-lens/discussions/7)；真实工作负载能帮助下一位用户判断。
+- 如果 Lens 对你的工具库确实有用，请[为仓库加 Star](https://github.com/labmimors/dsh-mcp-lens)，并[参与目录挑战](https://github.com/labmimors/dsh-mcp-lens/discussions/11)；脱敏后的真实工作负载能帮助下一位用户判断。
 - 如果你想先看一个可复现的前后对比，可以用[本地目录测量页](https://labmimors.github.io/dsh-mcp-lens/)粘贴当前工具面，直接算出准确 UTF-8 bytes，并导出可分享卡片；全程不上传 Schema。
 - 安全问题：阅读 [`SECURITY.md`](SECURITY.md)，不要在公开 Issue 中披露未修复漏洞。
 - 参与贡献：阅读 [`CONTRIBUTING.md`](CONTRIBUTING.md)。

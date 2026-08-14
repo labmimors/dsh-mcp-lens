@@ -236,7 +236,7 @@ See the shipped [`cordis.patch.yml`](cordis.patch.yml) for the canonical default
 
 ## Security, development, and community
 
-- Useful on your catalog? [Star the repository](https://github.com/labmimors/dsh-mcp-lens) and [share the catalog size you tested](https://github.com/labmimors/dsh-mcp-lens/discussions/7); real workloads help the next user decide.
+- Useful on your catalog? [Star the repository](https://github.com/labmimors/dsh-mcp-lens) and [join the catalog challenge](https://github.com/labmimors/dsh-mcp-lens/discussions/11); sanitized real workloads help the next user decide.
 - Want a quick before/after number? Use the [local-only catalog calculator](https://labmimors.github.io/dsh-mcp-lens/) to paste your current tool surface, compute exact UTF-8 bytes, and export a shareable card without uploading your schemas.
 - Security reports: read [`SECURITY.md`](SECURITY.md); do not disclose an unpatched exploit in a public issue.
 - Contributions: read [`CONTRIBUTING.md`](CONTRIBUTING.md).
