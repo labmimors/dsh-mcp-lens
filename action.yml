@@ -1,0 +1,28 @@
+name: MCP Lens Schema Audit
+description: Measure the model-facing MCP schema surface without uploading tool definitions.
+author: dsh-mcp-lens contributors
+
+branding:
+  icon: activity
+  color: green
+
+inputs:
+  tools-file:
+    description: Workspace-relative path to a JSON array of MCP tools or an object with a top-level tools array.
+    required: true
+
+outputs:
+  tool-count:
+    description: Number of tools in the supplied payload.
+  schema-bytes:
+    description: UTF-8 bytes in canonical JSON.stringify(tools) form.
+  lens-tool-count:
+    description: Fixed MCP Lens benchmark surface tool count (2).
+  lens-schema-bytes:
+    description: Fixed MCP Lens benchmark surface schema bytes (1114).
+  schema-byte-reduction-percent:
+    description: Schema-byte reduction versus the supplied payload, clamped to zero and rounded to three decimals.
+
+runs:
+  using: node24
+  main: action/index.js
