@@ -57,7 +57,7 @@ Prerequisites: DeepSeek Harness `0.1.0-rc.6`, Node.js `^22.19.0` or `>=24.0.0`, 
 Install the prebuilt release into your Harness profile:
 
 ```sh
-dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.4/dsh-mcp-lens-0.1.0-rc.4.tgz
+dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.5/dsh-mcp-lens-0.1.0-rc.5.tgz
 ```
 
 The tarball is already built, so no dependency build permission is needed. The MCP documentation server used below requires no additional API key; Harness still needs your configured model provider.
@@ -66,7 +66,7 @@ The tarball is already built, so no dependency build permission is needed. The M
 <summary>Install reviewed source instead</summary>
 
 ```sh
-dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.4
+dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.5
 ```
 
 Git installs fetch source and run `prepare`. With pnpm 10+, add this exact package key to `$DSH_HOME/profiles/web/pnpm-workspace.yaml` (default `~/.dsh/profiles/web/pnpm-workspace.yaml`), then rerun the command:
@@ -281,7 +281,7 @@ See the shipped [`cordis.patch.yml`](cordis.patch.yml) for the canonical default
 - Security reports: read [`SECURITY.md`](SECURITY.md); do not disclose an unpatched exploit in a public issue.
 - Contributions: read [`CONTRIBUTING.md`](CONTRIBUTING.md).
 - Search quality: [submit a sanitized search miss](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml) and help turn it into a regression fixture.
-- Release: [`v0.1.0-rc.4`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.4).
+- Release: [`v0.1.0-rc.5`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.5).
 
 DeepSeek Harness currently discovers community plugins through public GitHub repositories with the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic and installs them from GitHub, tarballs, or npm packages. See the official [plugin publishing guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md).
 
