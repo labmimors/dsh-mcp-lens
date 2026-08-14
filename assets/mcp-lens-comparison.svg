@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" role="img" aria-labelledby="title desc">
+  <title id="title">MCP Lens live DeepSeek Harness comparison</title>
+  <desc id="desc">With the same 1,000-tool MCP server and three tasks, the stock client exposed 1,025 model-visible tools and 674,249 bytes of tool JSON at an estimated cost of 0.03072 US dollars. MCP Lens exposed 27 model-visible tools and 27,401 bytes at an estimated cost of 0.00347 US dollars. Both completed three of three tasks.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#17122e"/>
+    </linearGradient>
+    <linearGradient id="lens" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="640" rx="30" fill="url(#background)"/>
+  <circle cx="1080" cy="72" r="150" fill="#8b5cf6" opacity="0.08"/>
+  <circle cx="92" cy="604" r="180" fill="#22d3ee" opacity="0.06"/>
+
+  <text x="64" y="74" fill="#a5b4fc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" letter-spacing="2">LIVE DEEPSEEK V4 FLASH PILOT</text>
+  <text x="64" y="122" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="38" font-weight="800">1,000 MCP tools. Much less standing context.</text>
+  <text x="64" y="157" fill="#aab4c8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="19">Same Harness, same MCP server, same 3 tasks · both arms completed 3/3</text>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="200" width="1072" height="310" rx="22" fill="#111827" stroke="#334155"/>
+  </g>
+
+  <rect x="350" y="224" width="30" height="14" rx="7" fill="#475569"/>
+  <text x="392" y="238" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">Official direct client</text>
+  <rect x="660" y="224" width="30" height="14" rx="7" fill="url(#lens)"/>
+  <text x="702" y="238" fill="#c4b5fd" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">MCP Lens</text>
+  <text x="1090" y="238" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" text-anchor="end">25 non-MCP tools shared</text>
+
+  <text x="96" y="286" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="650">Model-visible tools</text>
+  <rect x="350" y="266" width="640" height="26" rx="13" fill="#475569"/>
+  <rect x="350" y="302" width="17" height="26" rx="13" fill="url(#lens)"/>
+  <text x="1008" y="287" fill="#e2e8f0" font-family="Inter, ui-monospace, monospace" font-size="19" font-weight="700">1,025</text>
+  <text x="382" y="323" fill="#c4b5fd" font-family="Inter, ui-monospace, monospace" font-size="19" font-weight="700">27</text>
+
+  <text x="96" y="382" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="650">Tool JSON in request</text>
+  <rect x="350" y="362" width="640" height="26" rx="13" fill="#475569"/>
+  <rect x="350" y="398" width="26" height="26" rx="13" fill="url(#lens)"/>
+  <text x="1008" y="383" fill="#e2e8f0" font-family="Inter, ui-monospace, monospace" font-size="19" font-weight="700">674,249 B</text>
+  <text x="391" y="419" fill="#c4b5fd" font-family="Inter, ui-monospace, monospace" font-size="19" font-weight="700">27,401 B</text>
+
+  <text x="96" y="478" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="650">3-task cost · 2026-08-15</text>
+  <rect x="350" y="458" width="640" height="26" rx="13" fill="#475569"/>
+  <rect x="350" y="494" width="72" height="26" rx="13" fill="url(#lens)"/>
+  <text x="1008" y="479" fill="#e2e8f0" font-family="Inter, ui-monospace, monospace" font-size="19" font-weight="700">$0.03072</text>
+  <text x="437" y="515" fill="#c4b5fd" font-family="Inter, ui-monospace, monospace" font-size="19" font-weight="700">$0.00347</text>
+
+  <g transform="translate(64 548)">
+    <rect width="326" height="54" rx="27" fill="#1e293b" stroke="#475569"/>
+    <text x="163" y="35" text-anchor="middle" fill="#dbeafe" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">95.936% less tool JSON</text>
+  </g>
+  <g transform="translate(414 548)">
+    <rect width="326" height="54" rx="27" fill="#312e81" stroke="#6366f1"/>
+    <text x="163" y="35" text-anchor="middle" fill="#e0e7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">88.702% lower pilot cost</text>
+  </g>
+  <g transform="translate(764 548)">
+    <rect width="372" height="54" rx="27" fill="#164e63" stroke="#0891b2"/>
+    <text x="186" y="35" text-anchor="middle" fill="#cffafe" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">Search reveals exact input schema</text>
+  </g>
+</svg>

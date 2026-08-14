@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/mcp-lens-hero.webp" alt="Many MCP tool schemas converge through a lens into two model-facing interfaces" width="100%">
-</p>
-
 # MCP Lens for DeepSeek Harness
 
 English | [简体中文](README.zh-CN.md)
@@ -11,122 +7,117 @@ English | [简体中文](README.zh-CN.md)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-developer%20preview-5B5BD6)](https://github.com/deepseek-ai/deepseek-harness)
 
-**1,000 MCP tools. Two model-facing schemas.**
+**Cut the context and API cost of large MCP catalogs.**
 
-MCP Lens is a progressive-disclosure MCP gateway for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). It searches a private tool catalog, reveals only the selected tools' exact input schemas, and invokes one exact capability—without registering every remote tool up front.
+MCP Lens lets DeepSeek Harness search and call 1,000 remote tools through two stable model-facing interfaces. Instead of sending every tool schema on every turn, it reveals exact schemas for a small ranked set only when a tool is needed.
 
-> In the reproducible 1,000-tool component benchmark, Harness-visible tool-schema JSON fell from **647,962 B to 1,114 B (99.828%)**. This measures serialized schema bytes, not tokenizer tokens, provider billing, or LLM task quality.
+<p align="center">
+  <img src="assets/mcp-lens-comparison.svg" alt="Live DeepSeek Harness comparison: MCP Lens reduced model-visible tools, request tool JSON, and estimated API cost while both arms completed three of three tasks" width="100%">
+</p>
 
-The model always sees two stable interfaces:
+**Why does the chart show 27 instead of 2?** Both arms include the same 25 non-MCP Harness tools: the direct client exposes `25 + 1,000 = 1,025` total tools; Lens exposes `25 + 2 = 27`. The MCP surface itself is **1,000 → 2**.
 
-- `mcp_search` finds relevant capabilities and reveals their exact `inputSchema`.
-- `mcp_call` invokes one exact `server/tool` with the selected arguments.
+## What it solves
 
-Connections are lazy, one failed server does not hide healthy results, and the same fail-closed allow/deny policy governs search and direct calls.
+| Your problem | What MCP Lens changes |
+|---|---|
+| **API input grows with every MCP tool** | The MCP surface always starts with only `mcp_search` and `mcp_call`. In our live three-task pilot, estimated V4 Flash cost fell **88.702%**. |
+| **Large tool lists consume standing context** | With the same 1,000-tool server, complete Harness request-tool JSON fell from **674,249 B to 27,401 B**. |
+| **You worry routing will reduce task completion** | In the tested customer, Chinese-ticket, and GitHub tasks, Lens and the direct client both completed **3/3** with correct arguments and results. |
+| **Many similar tools widen the choice set** | Search narrows what the model sees at once, returns exact `inputSchema` values, and calls an explicit `server/tool` identity. |
+| **Every server connects even when unused** | Connections are lazy. Activation starts no MCP process and opens no MCP socket. |
+| **One server outage should not block the rest** | Other servers keep working, and Lens keeps the previous usable catalog when a refresh fails. |
+| **Risky tools should be hidden by default** | No remote tool appears until it matches `allowTools`; `denyTools` always wins in search and calls. |
 
-MCP Lens is built for multi-server or long-tail MCP catalogs. For a small, stable set of hot-path tools, the stock `@deepseek-ai/dsh-mcp-client` is simpler and usually better.
+In the live pilot, MCP Lens and the official direct client both completed **3/3 tasks**. Lens used one extra search step and more output tokens, so it is designed for large, multi-server, or long-tail catalogs—not a handful of tools used on every turn. See the [full pilot report](docs/LIVE_DEEPSEEK_PILOT.md).
 
-> MCP Lens is an independent community plugin. It is not affiliated with or endorsed by DeepSeek AI.
+## Install in 30 seconds
 
-## From intent to one exact tool
+Prerequisites: DeepSeek Harness `0.1.0-rc.6`, Node.js `^22.19.0` or `>=24.0.0`, and `pnpm` on `PATH`. The `dsh plugin` command delegates installation to pnpm.
 
-```text
-User intent
-   ↓
-mcp_search("find open pull requests by author")
-   ↓
-github/list_pull_requests + exact input schema
-   ↓
-mcp_call("github", "list_pull_requests", arguments)
-```
-
-## Why this exists
-
-The stock Harness MCP client exposes every configured remote tool directly to the model. That is the right default when the tool set is small. It becomes expensive and noisy when one profile aggregates dozens to thousands of remote tools.
-
-MCP Lens keeps the standing model surface constant:
-
-- the model always sees exactly two tools
-- exact remote schemas are disclosed only on demand
-- broken servers degrade locally instead of poisoning the whole tool surface
-- policy remains explicit at the final `server/tool` identity
-
-This is a progressive-disclosure adapter, not a replacement for MCP or Harness.
-
-## Measured result
-
-The checked-in keyless benchmark uses a real Harness `Context`, `SystemPrompt`, and `ToolRuntime`, the official `@deepseek-ai/dsh-mcp-client` baseline, and the same real stdio MCP fixture for both arms.
-
-| Remote MCP tools | Stock visible schemas | Stock schema bytes | Lens visible schemas | Lens schema bytes | Exact byte reduction |
-|---:|---:|---:|---:|---:|---:|
-| 12 | 12 | 4,862 | 2 | 1,114 | 77.088% |
-| 100 | 100 | 62,062 | 2 | 1,114 | 98.205% |
-| 1,000 | 1,000 | 647,962 | 2 | 1,114 | 99.828% |
-
-The exact metric is `Buffer.byteLength(JSON.stringify(ctx.tools.schemas()), 'utf8')`. These bytes are **not tokenizer tokens or provider billing**. On the frozen 12-query lexical retrieval fixture, Lens measured Recall@1/Recall@5/MRR = `1.0/1.0/1.0`; a deliberately naive exact-substring-count baseline measured `0.8333/0.9167/0.8843`. This is component evidence, not LLM task-quality evidence.
-
-Reproduce it from a source checkout or an unpacked release tarball:
-
-```sh
-npm ci
-npm run verify
-npm run bench -- --output benchmark.json
-```
-
-The release tarball deliberately includes the source, fixture, publishable dependency lock, and [`benchmark/README.md`](benchmark/README.md), so these claims remain independently runnable rather than README-only.
-
-## Install
-
-Prerequisites: DeepSeek Harness `0.1.0-rc.6` and Node.js `^22.19.0` or `>=24.0.0`. Harness is currently in developer preview.
-
-### Recommended: prebuilt GitHub Release
+Install the prebuilt release into your Harness profile:
 
 ```sh
 dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.2/dsh-mcp-lens-0.1.0-rc.2.tgz
-dsh --profile web --dump-config
 ```
 
-The attached tarball is prebuilt, so pnpm does not need permission to run a dependency build script.
+The tarball is already built, so no dependency build permission is needed. The MCP documentation server used below requires no additional API key; Harness still needs your configured model provider.
 
-### Source install pinned to a reviewed tag
+<details>
+<summary>Install reviewed source instead</summary>
 
 ```sh
 dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.2
 ```
 
-Git installs fetch source and run the package's `prepare` build. pnpm 10+ blocks that script until you explicitly add the exact package key to the profile's `pnpm-workspace.yaml`:
+Git installs fetch source and run `prepare`. With pnpm 10+, add this exact package key to `$DSH_HOME/profiles/web/pnpm-workspace.yaml` (default `~/.dsh/profiles/web/pnpm-workspace.yaml`), then rerun the command:
 
 ```yaml
 allowBuilds:
   dsh-mcp-lens: true
 ```
 
-Then rerun the pinned install. Treat `allowBuilds` as permission to execute package code on the host; review the source and pin a tag or commit SHA first.
+Review the source and pin a tag or commit SHA before granting build permission.
 
-For local development:
+</details>
 
-```sh
-dsh plugin --profile web add /absolute/path/to/dsh-mcp-lens
+## Connect your first MCP server
+
+The plugin ships with no servers and allows no remote tools until you opt in. Open:
+
+```text
+$DSH_HOME/profiles/web/cordis.patch.yml
 ```
 
-As of August 14, 2026, the official DeepSeek Harness docs point to public GitHub repositories carrying the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic for discovery and to GitHub, tarball, or npm package installation. No separate marketplace upload form was found in the current official docs. See the official [plugin publishing guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md).
-
-## Configure
-
-The bundle ships with no servers. Every stdio command is trusted host code, and every HTTP server is a trusted network capability, so the profile owner must opt in. Override the `mcp-lens` row in the profile's `cordis.patch.yml`; later patches replace the row's entire `config`, so restate every field you need:
+If `DSH_HOME` is unset, the default path is `~/.dsh/profiles/web/cordis.patch.yml`. If the file contains only `[]`, replace `[]` with the block below. If it already contains `- id` entries, append this as another top-level list item. It connects the public [official MCP documentation server](https://modelcontextprotocol.io/mcp) but exposes only its two read-only query tools:
 
 ```yaml
 - id: mcp-lens
   config:
     servers:
-      - name: local
-        transport: stdio
-        command: node
-        args: ['/absolute/path/to/mcp-server.mjs']
-        env:
-          SERVICE_TOKEN: !!js process.env.SERVICE_TOKEN
-        cacheNamespace: local-acme-readonly
+      - name: mcp-docs
+        transport: streamable-http
+        url: https://modelcontextprotocol.io/mcp
 
+    cachePath: !!js dshHomePath('mcp-lens/catalog.json')
+    allowTools:
+      - mcp-docs/search_model_context_protocol
+      - mcp-docs/query_docs_filesystem_model_context_protocol
+    denyTools: ['mcp-docs/submit_feedback']
+```
+
+Verify the assembled profile, then start Harness:
+
+```sh
+dsh --profile web --dump-config
+dsh --profile web
+```
+
+Now ask a normal question:
+
+```text
+Use the official MCP documentation server to explain when an MCP client should use Streamable HTTP.
+```
+
+MCP Lens handles the two-step routing internally:
+
+```text
+your request
+  → mcp_search("search MCP documentation for Streamable HTTP")
+  → exact mcp-docs/search_model_context_protocol input schema
+  → mcp_call("mcp-docs", "search_model_context_protocol", arguments)
+  → tool result
+```
+
+You do not have to mention `mcp_search` or `mcp_call` in normal prompts.
+
+<details>
+<summary>Authenticated Streamable HTTP example</summary>
+
+```yaml
+- id: mcp-lens
+  config:
+    servers:
       - name: knowledge
         transport: streamable-http
         url: https://mcp.example.com/rpc
@@ -135,91 +126,113 @@ The bundle ships with no servers. Every stdio command is trusted host code, and 
         cacheNamespace: knowledge-acme-readonly
 
     cachePath: !!js dshHomePath('mcp-lens/catalog.json')
-    catalogTtlMs: 86400000
-    idleDisconnectMs: 300000
-    connectTimeoutMs: 30000
-    callTimeoutMs: 60000
-    discoveryTimeoutMs: 30000
-    maxDiscoveryPages: 1000
-    maxToolsPerServer: 10000
-    maxBytesPerTool: 1048576
-    maxTotalCatalogBytes: 67108864
-    maxHttpResponseBytes: 16777216
-    maxCursorBytes: 4096
-    searchLimitDefault: 5
-    searchLimitMax: 10
-    allowTools: ['local/*', 'knowledge/read_*', 'knowledge/search_*']
+    allowTools: ['knowledge/read_*', 'knowledge/search_*']
     denyTools: ['*/delete_*', '*/destroy_*']
 ```
 
-Patterns match the exact `server/tool` identity. The glob language deliberately supports only literals and `*`; deny always wins. An empty allow list allows nothing.
+`cacheNamespace` is a non-secret identity for one tenant and permission scope. Rotate it when the account or scope changes. Never put the credential itself in this field. If a credentialed server omits it, Lens keeps that catalog memory-only and rediscovers it after restart.
 
-The shipped default is `allowTools: []`: adding a server alone exposes no remote capability. Explicitly opt in the smallest capability set you need.
+</details>
 
-`cacheNamespace` is a non-secret, stable identity for one tenant/auth scope. When a server has env, headers, URL credentials/query values, or a credential-shaped argv flag and omits this field, its catalog remains memory-only and is rediscovered after restart. Set a distinct namespace only when cross-restart caching is worth it; rotate the namespace whenever the account or capability scope changes. Never put the credential itself in this field.
+Patterns match the exact `server/tool` identity, support literals plus `*`, and apply with **deny winning**. An empty `allowTools` list allows nothing. A later Cordis patch replaces this row's whole `config`, so include every non-default field you want to keep.
 
-## Runtime behavior
+## Is MCP Lens right for you?
 
-1. Activation loads only a derived catalog cache and registers `mcp_search` plus `mcp_call`. It starts no MCP process and opens no MCP socket.
-2. First search refreshes missing or expired server catalogs in parallel. Concurrent refreshes for one server coalesce; an in-flight generation invalidated by `tools/list_changed` is never published. One broken server is reported without hiding results from healthy servers.
-3. Search ranks name, title, nested input-schema fields, description, and server name. It normalizes camel/snake/kebab forms, simple plurals, one-edit typos, and CJK bigrams.
-4. Call verifies policy and exact catalog membership, rejects MCP tools that require task execution, then forwards cancellation and timeout to the SDK.
-5. `tools/list_changed` invalidates only that server's catalog. HMR/disposal closes connections, cancels work, clears timers, and waits for quiescence.
+| Choose | When it fits best |
+|---|---|
+| Official `@deepseek-ai/dsh-mcp-client` | You have a few stable tools that are used on most turns and want the simplest direct path. |
+| MCP Lens | You have dozens to thousands of tools, several MCP servers, long-tail capabilities, or repeated context/cost pressure. |
 
-The catalog cache is a derived artifact written atomically with mode `0600`. It retains exact input schemas but drops `_meta`, output schemas, icons, and unknown metadata; annotations and task-execution metadata use narrow protocol allowlists. Explicit env/header values and URL credentials/query values are not written to it, and credential-scoped servers are not persisted unless they declare a non-secret `cacheNamespace`. Stdio children inherit Harness' scrubbed environment plus only the explicit `env` block.
+Lens trades a search step on first use for a nearly constant standing MCP schema surface. The larger and less frequently used your catalog is, the stronger that trade becomes.
 
-## Threat model and limits
+**Speed:** there is no universal latency win to claim. The first uncached use adds search and connection work; smaller requests may offset that cost on large catalogs, so measure your own workload.
 
-- MCP Lens is **not a sandbox**. Stdio servers run as host processes; HTTP servers receive whatever headers you configure.
-- Fine-grained Lens allow/deny reduces the capability-compression risk of one generic `mcp_call`, but other Harness policies still see the outer tool name. Keep destructive patterns denied unless intentionally enabled.
-- Discovery rejects a whole generation rather than publishing partial data when its overall deadline, page/tool count, per-tool/cursor bytes, aggregate catalog byte cap, or HTTP streaming-response cap is exceeded; pagination cycle detection retains only fixed-size cursor digests, and the previous last-good generation remains available and is marked stale.
-- This release bridges MCP tools only. It does not implement OAuth, resources, prompts, elicitation, or task-based tool execution.
-- First use trades a search round-trip and cold connection latency for a constant standing schema surface. The benchmark's cold search was roughly 183–375 ms on one local Apple Silicon run; latency is host-specific.
-- The catalog and ranking operate on untrusted server metadata with discovery deadlines and count/byte caps, but accepted server descriptions and schemas still enter model context when selected and, when persistence is enabled for that server, enter the owner-only cache. Do not configure an MCP server that puts credentials in descriptions or schemas.
-- DeepSeek Harness is in developer preview; its external plugin APIs may change.
+## Measured results
 
-## Choosing the right MCP adapter
+### Live DeepSeek V4 Flash pilot
 
-| Option | Best fit | Main trade-off |
-|---|---|---|
-| Official `@deepseek-ai/dsh-mcp-client` | A small, stable hot-path tool set | Registers one model-facing schema per remote tool |
-| MCP Lens | Large, multi-server, or long-tail catalogs | First use normally adds a search step |
-| [`dsh-mcp-proxy`](https://github.com/ben7am1n/dsh-mcp-proxy) | A similarly small lazy search/call proxy | Lens additionally emphasizes exact-schema retrieval evaluation, consistent capability policy, and explicit resource bounds |
-| [`dsh-mcp-adapter`](https://github.com/NexusAgentX/dsh-mcp-adapter) | Web UI, OAuth, and direct-tool promotion | Broader product surface and more moving parts |
+Same DeepSeek Harness `0.1.0-rc.6`, same 1,000-tool stdio server, and the same three customer/ticket/GitHub tasks:
 
-This comparison is based on the projects' current public documentation. MCP Lens does not claim to be the first or only search/call adapter.
+| Metric across three tasks | Official direct client | MCP Lens | Difference |
+|---|---:|---:|---:|
+| Completed tasks | 3 / 3 | 3 / 3 | Tie |
+| Model-visible tools per request | 1,025 | 27 | 97.366% fewer |
+| `request/header.tools` JSON | 674,249 B | 27,401 B | 95.936% smaller |
+| Uncached input tokens | 199,751 | 21,713 | 89.130% fewer |
+| Cache-read input tokens | 934,912 | 74,496 | 92.032% fewer |
+| Estimated API cost | $0.0307204 | $0.0034707 | 88.702% lower |
 
-## Development and reproducibility
+The cost estimate uses provider-reported usage and [official V4 Flash pricing](https://api-docs.deepseek.com/quick_start/pricing/) current on August 15, 2026. The three-task setup, observed calls, formula, and tradeoffs are recorded in [`docs/LIVE_DEEPSEEK_PILOT.md`](docs/LIVE_DEEPSEEK_PILOT.md).
+
+### Keyless component benchmark
+
+The checked-in benchmark uses a real Harness `Context`, `SystemPrompt`, and `ToolRuntime`, the official direct client as baseline, and the same local MCP fixture for both arms:
+
+| Remote MCP tools | Direct-client schema JSON | Lens schema JSON | Reduction |
+|---:|---:|---:|---:|
+| 12 | 4,862 B | 1,114 B | 77.088% |
+| 100 | 62,062 B | 1,114 B | 98.205% |
+| 1,000 | 647,962 B | 1,114 B | 99.828% |
+
+At 1,000 tools, the official client registers 1,000 remote schemas while Lens still registers two. On the frozen 12-query retrieval fixture, Lens measured Recall@1 / Recall@5 / MRR = `1.0 / 1.0 / 1.0`.
+
+Reproduce the component result without an API key:
 
 ```sh
 npm ci
-npm run typecheck
-npm test
-npm run build
-npm run bench
-npm audit --omit=dev
-npm pack --dry-run --json --ignore-scripts
+npm run verify
+npm run bench -- --output benchmark.json
 ```
 
-The release package intentionally includes source, tests, fixture, benchmark runner, dependency lock, and source maps. That adds package size, but lets an unpacked release reproduce the published component evidence without relying on this README.
+The exact metric, fixture, dependency versions, source digest, and measurement limits are in [`benchmark/README.md`](benchmark/README.md).
 
-The implementation intentionally has no UI, OAuth stack, config migration framework, vector database, or model dependency. Optional product layers belong in separate plugins.
+## Reliability and resource controls
 
-## Security and contributing
+- **Lazy by default:** no MCP process or socket at plugin activation; idle connections close automatically.
+- **Failure isolation:** catalog refreshes run per server; one failure does not hide healthy servers.
+- **Last-good behavior:** failed or oversized discovery never replaces a usable catalog generation.
+- **Bounded input:** deadlines and caps cover pagination, tool count, per-tool bytes, total catalog bytes, cursors, and streamed HTTP responses.
+- **Credential-aware cache:** the owner-only `0600` cache stores projected tool metadata, never explicit env/header values or URL credentials.
+- **Exact policy:** search and call share the same allow/deny decision at the final `server/tool` identity.
+- **Clean shutdown:** cancellation, HMR, and disposal close transports, children, timers, and in-flight work.
 
-- Read [`SECURITY.md`](SECURITY.md) before reporting a vulnerability; do not disclose an unpatched exploit in a public issue.
-- See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development and pull-request expectations.
-- Search-quality contributions are especially useful: submit a small, sanitized failing query/tool fixture rather than credentials or a private catalog.
+MCP Lens is not a sandbox: stdio servers execute on the host, and HTTP servers receive the headers you configure. The current release bridges MCP Tools; it does not implement OAuth, Resources, Prompts, Elicitation, or task-based tool execution.
 
-The public launch copy and claim boundaries are recorded in [`PROMOTION.md`](PROMOTION.md). The growth loop is deliberately evidence-led: clone → rerun the benchmark → report a search miss → turn it into a regression case.
+## Configuration reference
 
-## Community status
+Most users only need `servers`, `cachePath`, `allowTools`, and `denyTools`. The remaining fields already have bounded defaults:
 
-- GitHub: [labmimors/dsh-mcp-lens](https://github.com/labmimors/dsh-mcp-lens)
-- Release: [`v0.1.0-rc.2`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.2)
-- Issues: [bug reports and search misses](https://github.com/labmimors/dsh-mcp-lens/issues)
-- DeepSeek Harness: developer preview; plugin APIs may change
+<details>
+<summary>Show all bounded defaults</summary>
 
-## License
+| Field | Default | Purpose |
+|---|---:|---|
+| `catalogTtlMs` | `86400000` | Refresh a catalog after 24 hours |
+| `idleDisconnectMs` | `300000` | Close an idle server after 5 minutes |
+| `connectTimeoutMs` | `30000` | Connection deadline |
+| `callTimeoutMs` | `60000` | Tool-call deadline |
+| `discoveryTimeoutMs` | `30000` | Whole paginated discovery deadline |
+| `maxDiscoveryPages` | `1000` | Maximum pages per discovery |
+| `maxToolsPerServer` | `10000` | Maximum tools accepted from one server |
+| `maxBytesPerTool` | `1048576` | Maximum projected metadata bytes per tool |
+| `maxTotalCatalogBytes` | `67108864` | Maximum total catalog/cache bytes |
+| `maxHttpResponseBytes` | `16777216` | Maximum streamed HTTP response bytes |
+| `maxCursorBytes` | `4096` | Maximum UTF-8 pagination cursor bytes |
+| `searchLimitDefault` | `5` | Default search results |
+| `searchLimitMax` | `10` | Maximum search results |
 
-MIT
+See the shipped [`cordis.patch.yml`](cordis.patch.yml) for the canonical defaults.
+
+</details>
+
+## Security, development, and community
+
+- Useful on your catalog? [Star the repository](https://github.com/labmimors/dsh-mcp-lens) and share the catalog size you tested; real workloads help the next user decide.
+- Security reports: read [`SECURITY.md`](SECURITY.md); do not disclose an unpatched exploit in a public issue.
+- Contributions: read [`CONTRIBUTING.md`](CONTRIBUTING.md).
+- Search quality: [submit a sanitized search miss](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml) and help turn it into a regression fixture.
+- Release: [`v0.1.0-rc.2`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.2).
+
+DeepSeek Harness currently discovers community plugins through public GitHub repositories with the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic and installs them from GitHub, tarballs, or npm packages. See the official [plugin publishing guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md).
+
+MCP Lens is an independent MIT-licensed community plugin and is not affiliated with or endorsed by DeepSeek AI.
