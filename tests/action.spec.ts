@@ -20,11 +20,13 @@ interface ActionModule {
   LENS_SURFACE: Readonly<{ tools: number, bytes: number }>
   MAX_TOOLS_FILE_BYTES: number
   assertToolsFileSize(bytes: number): void
+  parseOptionalLimit(value: string | undefined, label: string): number | undefined
+  budgetViolations(measurement: Measurement, budgets?: { maxTools?: number, maxSchemaBytes?: number }): readonly string[]
   extractTools(value: unknown): readonly unknown[]
   measurePayload(value: unknown): Measurement
   parsePayload(raw: string | Uint8Array): unknown
   buildOutputs(measurement: Measurement): Readonly<Record<string, string>>
-  buildStepSummary(measurement: Measurement): string
+  buildStepSummary(measurement: Measurement, budgets?: { maxTools?: number, maxSchemaBytes?: number }): string
 }
 
 async function loadActionModule(): Promise<ActionModule> {
@@ -48,6 +50,8 @@ describe('GitHub Action schema audit', () => {
     expect(metadata).toContain('using: node24')
     expect(metadata).toContain('main: action/index.js')
     expect(metadata).toMatch(/tools-file:\n\s+description:[^\n]+\n\s+required: true/)
+    expect(metadata).toMatch(/max-tools:\n\s+description:[^\n]+\n\s+required: false/)
+    expect(metadata).toMatch(/max-schema-bytes:\n\s+description:[^\n]+\n\s+required: false/)
     expect(metadata).toContain('tool-count:')
     expect(metadata).toContain('schema-bytes:')
     expect(metadata).toContain('lens-tool-count:')
@@ -72,10 +76,14 @@ describe('GitHub Action schema audit', () => {
 
     const arrayMeasurement = action.measurePayload(site.SAMPLE_TOOLS)
     const wrappedMeasurement = action.measurePayload({ tools: site.SAMPLE_TOOLS })
+    const schemasMeasurement = action.measurePayload({ schemas: site.SAMPLE_TOOLS })
+    const recordedMeasurement = action.measurePayload({ request: { header: { tools: site.SAMPLE_TOOLS } } })
     const siteMeasurement = site.measurePayload(site.SAMPLE_TOOLS)
 
     expect(action.LENS_SURFACE).toEqual({ tools: 2, bytes: 1_114 })
     expect(arrayMeasurement).toEqual(wrappedMeasurement)
+    expect(arrayMeasurement).toEqual(schemasMeasurement)
+    expect(arrayMeasurement).toEqual(recordedMeasurement)
     expect(arrayMeasurement.toolCount).toBe(1_000)
     expect(arrayMeasurement.bytes).toBe(294_894)
     expect(arrayMeasurement.reductionPercent).toBe(siteMeasurement.reductionPercent)
@@ -106,13 +114,33 @@ describe('GitHub Action schema audit', () => {
 
     expect(() => action.parsePayload('{not-json')).toThrow('valid UTF-8 JSON')
     expect(() => action.parsePayload(Uint8Array.from([0xff, 0xfe, 0xfd]))).toThrow('valid UTF-8 JSON')
-    for (const payload of [null, {}, { tools: null }, { schemas: [] }, { header: { tools: [] } }, 'tools']) {
-      expect(() => action.extractTools(payload)).toThrow('top-level JSON array')
+    for (const payload of [null, {}, { tools: null }, { schemas: null }, { header: { tools: [] } }, 'tools']) {
+      expect(() => action.extractTools(payload)).toThrow('request.header.tools array')
     }
 
     expect(action.MAX_TOOLS_FILE_BYTES).toBe(64 * 1024 * 1024)
     expect(() => action.assertToolsFileSize(action.MAX_TOOLS_FILE_BYTES)).not.toThrow()
     expect(() => action.assertToolsFileSize(action.MAX_TOOLS_FILE_BYTES + 1)).toThrow('must not exceed')
+    expect(action.parseOptionalLimit(undefined, 'max-tools')).toBeUndefined()
+    expect(action.parseOptionalLimit(' 1000 ', 'max-tools')).toBe(1_000)
+    for (const invalid of ['0', '-1', '1.5', '1e3', '9007199254740992']) {
+      expect(() => action.parseOptionalLimit(invalid, 'max-tools')).toThrow('positive')
+    }
+  })
+
+  it('reports optional schema budgets and identifies every exceeded limit', async () => {
+    const action = await loadActionModule()
+    const measurement = { toolCount: 3, bytes: 2_000, reductionPercent: 44.3 }
+    const budgets = { maxTools: 2, maxSchemaBytes: 1_500 }
+
+    expect(action.budgetViolations(measurement, budgets)).toEqual([
+      'tool count 3 exceeds 2',
+      'schema bytes 2000 exceeds 1500',
+    ])
+    const summary = action.buildStepSummary(measurement, budgets)
+    expect(summary).toContain('Configured tool-count budget: **2**')
+    expect(summary).toContain('Configured schema-byte budget: **1,500 B**')
+    expect(summary).toContain('Budget result: **FAIL**')
   })
 
   it('writes only numeric outputs and a schema-free step summary', async () => {
@@ -201,6 +229,36 @@ describe('GitHub Action schema audit', () => {
       } finally {
         await rm(outside, { recursive: true, force: true })
       }
+    })
+  })
+
+  it('fails a valid audit after writing schema-free results when a configured budget is exceeded', async () => {
+    await withTemporaryDirectory(async (workspace) => {
+      const toolsFile = join(workspace, 'tools.json')
+      const outputFile = join(workspace, 'output.txt')
+      const summaryFile = join(workspace, 'summary.md')
+      await Promise.all([
+        writeFile(toolsFile, JSON.stringify([{ name: 'one' }, { name: 'two' }]), 'utf8'),
+        writeFile(outputFile, '', 'utf8'),
+        writeFile(summaryFile, '', 'utf8'),
+      ])
+
+      await expect(execFileAsync(process.execPath, [actionPath], {
+        cwd: workspace,
+        env: {
+          ...process.env,
+          'INPUT_TOOLS-FILE': 'tools.json',
+          'INPUT_MAX-TOOLS': '1',
+          GITHUB_WORKSPACE: workspace,
+          GITHUB_OUTPUT: outputFile,
+          GITHUB_STEP_SUMMARY: summaryFile,
+        },
+      })).rejects.toMatchObject({ code: 1 })
+
+      expect(await readFile(outputFile, 'utf8')).toMatch(/^tool-count=2\n/)
+      const summary = await readFile(summaryFile, 'utf8')
+      expect(summary).toContain('Budget result: **FAIL**')
+      expect(summary).not.toContain('"name"')
     })
   })
 })
