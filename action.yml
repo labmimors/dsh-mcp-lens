@@ -8,8 +8,14 @@ branding:
 
 inputs:
   tools-file:
-    description: Workspace-relative path to a JSON array of MCP tools or an object with a top-level tools array.
+    description: Workspace-relative path to a JSON tool array, tools/schemas object, or recorded request.header.tools payload.
     required: true
+  max-tools:
+    description: Optional positive tool-count budget. The action fails when the payload exceeds it.
+    required: false
+  max-schema-bytes:
+    description: Optional positive UTF-8 schema-byte budget. The action fails when the canonical payload exceeds it.
+    required: false
 
 outputs:
   tool-count:

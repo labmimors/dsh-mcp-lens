@@ -11,9 +11,19 @@ export const MAX_TOOLS_FILE_BYTES = 64 * 1024 * 1024
 
 export function extractTools(value) {
   if (Array.isArray(value)) return value
-  if (value && typeof value === "object" && Array.isArray(value.tools)) return value.tools
+  if (value && typeof value === "object") {
+    if (Array.isArray(value.tools)) return value.tools
+    if (Array.isArray(value.schemas)) return value.schemas
+    if (
+      value.request
+      && typeof value.request === "object"
+      && value.request.header
+      && typeof value.request.header === "object"
+      && Array.isArray(value.request.header.tools)
+    ) return value.request.header.tools
+  }
 
-  throw new Error("Expected a top-level JSON array or an object with a top-level tools array.")
+  throw new Error("Expected a JSON array, a tools/schemas array, or a request.header.tools array.")
 }
 
 export function measurePayload(value) {
@@ -64,6 +74,27 @@ export function assertToolsFileSize(bytes) {
   }
 }
 
+export function parseOptionalLimit(value, label) {
+  const text = value?.trim()
+  if (!text) return undefined
+  if (!/^[1-9]\d*$/.test(text)) throw new Error(`${label} must be a positive integer.`)
+
+  const parsed = Number(text)
+  if (!Number.isSafeInteger(parsed)) throw new Error(`${label} must be a positive safe integer.`)
+  return parsed
+}
+
+export function budgetViolations(measurement, budgets = {}) {
+  const violations = []
+  if (budgets.maxTools !== undefined && measurement.toolCount > budgets.maxTools) {
+    violations.push(`tool count ${measurement.toolCount} exceeds ${budgets.maxTools}`)
+  }
+  if (budgets.maxSchemaBytes !== undefined && measurement.bytes > budgets.maxSchemaBytes) {
+    violations.push(`schema bytes ${measurement.bytes} exceeds ${budgets.maxSchemaBytes}`)
+  }
+  return Object.freeze(violations)
+}
+
 export async function resolveToolsFile(inputPath, workspacePath) {
   const workspace = await realpath(resolve(workspacePath))
   const candidate = isAbsolute(inputPath) ? resolve(inputPath) : resolve(workspace, inputPath)
@@ -105,8 +136,9 @@ function comparison(current, lens, unit) {
   return `${formatInteger(difference)} more ${unit} at the fixed Lens surface.`
 }
 
-export function buildStepSummary(measurement) {
-  return [
+export function buildStepSummary(measurement, budgets = {}) {
+  const violations = budgetViolations(measurement, budgets)
+  const lines = [
     "## MCP Lens schema surface",
     "",
     "| Surface | Model-facing tools | Canonical `JSON.stringify(tools)` UTF-8 bytes |",
@@ -117,10 +149,23 @@ export function buildStepSummary(measurement) {
     `- Tool-count comparison: **${comparison(measurement.toolCount, LENS_SURFACE.tools, "tools")}**`,
     `- Schema-byte comparison: **${comparison(measurement.bytes, LENS_SURFACE.bytes, "bytes")}**`,
     `- Schema-byte reduction versus this payload: **${measurement.reductionPercent.toFixed(3)}%**`,
+  ]
+
+  if (budgets.maxTools !== undefined || budgets.maxSchemaBytes !== undefined) {
+    lines.push(
+      "",
+      `- Configured tool-count budget: **${budgets.maxTools === undefined ? "not set" : formatInteger(budgets.maxTools)}**`,
+      `- Configured schema-byte budget: **${budgets.maxSchemaBytes === undefined ? "not set" : `${formatInteger(budgets.maxSchemaBytes)} B`}**`,
+      `- Budget result: **${violations.length === 0 ? "PASS" : "FAIL"}**`,
+    )
+  }
+
+  lines.push(
     "",
     "> Schema bytes only; this does not measure tokens, billing, latency, or task quality.",
     "",
-  ].join("\n")
+  )
+  return lines.join("\n")
 }
 
 async function writeOutputs(outputPath, outputs) {
@@ -137,6 +182,10 @@ async function writeStepSummary(summaryPath, summary) {
 export async function run(environment = process.env) {
   const input = environment["INPUT_TOOLS-FILE"]?.trim()
   if (!input) throw new Error("The required tools-file input is empty.")
+  const budgets = Object.freeze({
+    maxTools: parseOptionalLimit(environment["INPUT_MAX-TOOLS"], "max-tools"),
+    maxSchemaBytes: parseOptionalLimit(environment["INPUT_MAX-SCHEMA-BYTES"], "max-schema-bytes"),
+  })
 
   const workspace = environment.GITHUB_WORKSPACE || process.cwd()
   const toolsFile = await resolveToolsFile(input, workspace)
@@ -144,7 +193,10 @@ export async function run(environment = process.env) {
   const measurement = measurePayload(payload)
 
   await writeOutputs(environment.GITHUB_OUTPUT, buildOutputs(measurement))
-  await writeStepSummary(environment.GITHUB_STEP_SUMMARY, buildStepSummary(measurement))
+  await writeStepSummary(environment.GITHUB_STEP_SUMMARY, buildStepSummary(measurement, budgets))
+
+  const violations = budgetViolations(measurement, budgets)
+  if (violations.length > 0) throw new Error(`Schema budget exceeded: ${violations.join("; ")}.`)
 
   return measurement
 }
