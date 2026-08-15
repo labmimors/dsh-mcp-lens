@@ -32,6 +32,23 @@ MCP Lens 让 DeepSeek Harness 通过两个稳定入口搜索并调用 1,000 个�
 
 前置要求：DeepSeek Harness `0.1.0-rc.6`、Node.js `^22.19.0` 或 `>=24.0.0`，并且 `pnpm` 已在 `PATH` 中。`dsh plugin` 会把安装交给 pnpm 执行。
 
+最快安装方式：
+
+```sh
+dsh plugin --profile web add dsh-mcp-lens@next
+```
+
+需要可复现安装时，固定到已审核版本：
+
+```sh
+dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.9
+```
+
+npm 的 `next` 标签目前解析到 `0.1.0-rc.9`。发布后下载的 Registry Tarball 已与审核过的 GitHub rc.9 附件逐字节比较一致（`SHA-256 a8e4bf8389d0107379c13c845feb3c7c0c26d4aa3312391640e1fed074d39dbc`），并在全新的 DeepSeek Harness rc.6 Profile 中完成真实安装验证。
+
+<details>
+<summary>改为校验并安装 GitHub Release 附件</summary>
+
 rc.9 Release 页面已经列出 `.tgz` 附件与 SHA-256。先下载文件，把本地摘要与该附件显示的摘要逐字比较，确认一致后再把本地文件安装到 Harness Profile。某些 pnpm 版本直接接收 GitHub 重定向后的附件 URL 时会报 `ERR_PNPM_MISSING_TARBALL_INTEGRITY`。
 
 ```sh
@@ -44,7 +61,9 @@ dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.9.tgz
 
 Windows 用户可从 [rc.9 Release 页面](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9)下载同一附件，把 `Get-FileHash -Algorithm SHA256` 的结果与附件显示的摘要逐字比较；只有一致时才把本地路径交给 `dsh plugin add`。
 
-上面的三条命令依次完成下载、校验和安装。要真正开始使用，请继续完成[连接第一个 MCP Server](#连接第一个-mcp-server)；其中的复制粘贴配置会同时添加 Server 和你要放行的准确工具。然后验证并启动 Profile：
+</details>
+
+要真正开始使用，请继续完成[连接第一个 MCP Server](#连接第一个-mcp-server)；其中的复制粘贴配置会同时添加 Server 和你要放行的准确工具。然后验证并启动 Profile：
 
 ```sh
 dsh --profile web --dump-config

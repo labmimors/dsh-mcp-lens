@@ -32,6 +32,23 @@ Use MCP Lens if you have dozens to thousands of MCP tools, multiple servers, or 
 
 Prerequisites: DeepSeek Harness `0.1.0-rc.6`, Node.js `^22.19.0` or `>=24.0.0`, and `pnpm` on `PATH`. The `dsh plugin` command delegates installation to pnpm.
 
+Fastest install:
+
+```sh
+dsh plugin --profile web add dsh-mcp-lens@next
+```
+
+For a reproducible install, pin the reviewed version:
+
+```sh
+dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.9
+```
+
+The npm `next` tag currently resolves to `0.1.0-rc.9`. The registry tarball was downloaded after publication and verified byte-for-byte against the reviewed GitHub rc.9 asset (`SHA-256 a8e4bf8389d0107379c13c845feb3c7c0c26d4aa3312391640e1fed074d39dbc`), then installed in a fresh DeepSeek Harness rc.6 profile.
+
+<details>
+<summary>Verify and install the GitHub Release tarball instead</summary>
+
 The rc.9 Release page lists the `.tgz` asset and its SHA-256 digest. Download the file, compare its digest with the value shown for that exact Release asset, and only then install the local file into your Harness profile. Passing a redirected GitHub asset URL directly to pnpm can fail with `ERR_PNPM_MISSING_TARBALL_INTEGRITY` on some pnpm versions.
 
 ```sh
@@ -44,7 +61,9 @@ dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.9.tgz
 
 On Windows, download the same asset from the [rc.9 Release page](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9), compare `Get-FileHash -Algorithm SHA256` with the digest shown for that asset, and pass its local path to `dsh plugin add` only if they match.
 
-The three-command block downloads, verifies, and installs the plugin. To make it useful, continue with [Connect your first MCP server](#connect-your-first-mcp-server); its copy-paste block adds both a server and the exact tools you want to allow. Then validate and start the profile:
+</details>
+
+To make the plugin useful, continue with [Connect your first MCP server](#connect-your-first-mcp-server); its copy-paste block adds both a server and the exact tools you want to allow. Then validate and start the profile:
 
 ```sh
 dsh --profile web --dump-config
