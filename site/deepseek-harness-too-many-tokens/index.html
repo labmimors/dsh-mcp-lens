@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeepSeek Harness context exceeded? Diagnose token usage</title>
+    <meta
+      name="description"
+      content="DeepSeek Harness context exceeded or using too many tokens? Separate MCP tool schemas, tool results, history, repeated steps, reasoning, output, and cache misses before choosing a fix."
+    />
+    <meta name="keywords" content="DeepSeek Harness context exceeded, DeepSeek Harness too many tokens, MCP tool schema bloat, MCP token overhead, dsh MCP tools" />
+    <link rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/" />
+    <link rel="alternate" hreflang="en" href="https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/" />
+    <link rel="alternate" hreflang="x-default" href="https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="MCP Lens" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta property="og:title" content="DeepSeek Harness context exceeded? Diagnose token usage" />
+    <meta property="og:description" content="Find the layer behind high DeepSeek Harness token usage before changing your MCP setup." />
+    <meta property="og:url" content="https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/" />
+    <meta property="og:image" content="https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DeepSeek Harness context exceeded? Diagnose token usage" />
+    <meta name="twitter:description" content="Separate tool schemas, history, repeated steps, model output, and cache misses before choosing a fix." />
+    <meta name="twitter:image" content="https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078" />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "TechArticle",
+            "@id": "https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/#article",
+            "headline": "DeepSeek Harness context exceeded or using too many tokens? Diagnose the right layer",
+            "description": "Separate MCP tool schemas, tool results, history, repeated steps, reasoning, output, and cache misses before choosing a fix.",
+            "url": "https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/",
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": "https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/"
+            },
+            "datePublished": "2026-08-16",
+            "dateModified": "2026-08-16",
+            "inLanguage": "en",
+            "author": {
+              "@type": "Organization",
+              "name": "labmimors",
+              "url": "https://github.com/labmimors"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "labmimors",
+              "url": "https://github.com/labmimors"
+            },
+            "about": [
+              { "@type": "SoftwareApplication", "name": "DeepSeek Harness", "alternateName": "dsh" },
+              { "@type": "Thing", "name": "Model Context Protocol" },
+              { "@type": "SoftwareApplication", "name": "MCP Lens", "softwareVersion": "0.1.0-rc.9" }
+            ],
+            "citation": [
+              "https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/mcp/mcp-client/README.md",
+              "https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/docs/architecture.md",
+              "https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1576",
+              "https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md",
+              "https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/docs/LIVE_DEEPSEEK_PILOT.md"
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Why is DeepSeek Harness using so many tokens?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "High usage can come from standing tool schemas, retained tool results and history, repeated model steps, reasoning and output, or prompt-cache misses. Split those layers before changing the MCP setup."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How can I tell whether MCP tool schemas are the cause?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Measure the tool count and serialized request/header.tools JSON on each request. If that surface is large before any tool result exists, and a controlled run with fewer visible tools reduces the same layer, schema bloat is a plausible cause."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does MCP Lens guarantee lower total token usage?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. The fixed fixture measures schema JSON bytes, not tokens. In the separate three-task pilot both arms completed 3/3, while Lens added a search step and used 794 output tokens versus 491 for the direct client."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="page article-shell">
+      <nav class="article-nav" aria-label="Article navigation">
+        <a href="../">Schema calculator</a>
+        <a href="../1000-tool-tax/">1,000-tool study</a>
+        <a lang="zh-CN" href="../zh-CN/deepseek-harness-too-many-tokens/">中文</a>
+      </nav>
+
+      <article class="article">
+        <header class="article-hero">
+          <p class="eyebrow">DeepSeek Harness context diagnostic</p>
+          <h1>Context exceeded or using too many tokens?</h1>
+          <p class="article-deck">Do not compress history blindly. First separate standing MCP schemas, retained tool results, repeated model steps, reasoning and output, and prompt-cache misses—then change only the layer causing the growth.</p>
+          <p class="article-meta">Updated August 16, 2026 · Evidence-scoped guide · Written by the MCP Lens maintainer</p>
+        </header>
+
+        <section class="article-proof" aria-label="Guide boundaries">
+          <div><span>Possible causes</span><strong>5 separate layers</strong></div>
+          <div><span>Fixed schema fixture</span><strong>647,962 B → 1,114 B</strong></div>
+          <div><span>Separate pilot completion</span><strong>3/3 vs 3/3</strong></div>
+          <div><span>Pilot output tokens</span><strong>491 vs 794</strong></div>
+        </section>
+
+        <div class="article-body">
+          <p class="article-lead">Short answer: MCP tool-schema bloat is the cause only when the model-facing tool surface is already large before useful work begins. If growth starts after file reads, tool results, or repeated turns, a schema gateway is solving the wrong layer.</p>
+
+          <aside class="article-callout" aria-label="DeepSeek Harness scope"><strong>Which Harness?</strong> This guide covers <strong>DeepSeek Harness (<code>dsh</code>)</strong>, the open-source AI agent harness maintained by <code>deepseek-ai</code>—not Harness.io, the software delivery platform.</aside>
+
+          <h2 id="five-causes">Five causes can produce the same symptom</h2>
+          <p>Total usage is an accounting result, not a root-cause analysis. Start with when the request grows.</p>
+          <div class="article-table-wrap">
+            <table>
+              <thead><tr><th>Layer</th><th>Signal</th><th>What to measure</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Standing tool schemas</strong></td><td>Input is large before the first useful tool call.</td><td>Count tools and serialize <code>request/header.tools</code> for every request.</td></tr>
+                <tr><td><strong>Tool results and history</strong></td><td>Input grows after searches, file reads, logs, or verbose calls.</td><td>Measure each retained message, tool argument, and model-facing result separately.</td></tr>
+                <tr><td><strong>Repeated model steps</strong></td><td>Each request looks plausible, but the session total is large.</td><td>Count model requests per turn and separate per-request usage from cumulative usage.</td></tr>
+                <tr><td><strong>Reasoning and output</strong></td><td>Input is controlled, but completion usage remains high.</td><td>Keep provider-reported output and reasoning fields separate from input.</td></tr>
+                <tr><td><strong>Prompt-cache misses</strong></td><td>Uncached input jumps after the tool list or schemas change.</td><td>Compare cache-read and uncached input per request, then correlate with tool-surface changes.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="audit">A six-layer audit finds the first source of growth</h2>
+          <ol>
+            <li><strong>Define the number.</strong> Is it one request or the whole session? Split input, cache-read input, output, and reasoning.</li>
+            <li><strong>Measure schemas.</strong> Record tool count and serialized tool-schema JSON bytes on each request.</li>
+            <li><strong>Measure history.</strong> Attribute payload size to system text, messages, tool arguments, and rendered tool results.</li>
+            <li><strong>Count steps.</strong> Map every model request to the tool calls around it.</li>
+            <li><strong>Read provider usage.</strong> Treat local JSON size as a diagnostic proxy, not a token conversion.</li>
+            <li><strong>Run one controlled change.</strong> Hold model, tasks, server, and Harness configuration constant; change only tool exposure.</li>
+          </ol>
+          <aside class="article-callout" aria-label="Schema-layer decision rule"><strong>Decision rule:</strong> if <code>request/header.tools</code> is not a material part of the first request, progressive disclosure is unlikely to fix the dominant source of context growth.</aside>
+
+          <h2 id="choose-path">Native MCP is the baseline; progressive disclosure is a trade</h2>
+          <p>DeepSeek Harness is plugin-first. Its documented architecture lets a plugin extend the tool registry without patching the agent loop. That makes both paths composable, not universally equivalent.</p>
+          <div class="article-decision-grid">
+            <section>
+              <h3>Keep the official native client</h3>
+              <ul>
+                <li>The catalog is small and stable.</li>
+                <li>The model should receive each exact schema immediately.</li>
+                <li>A direct call matters more than reducing the standing tool surface.</li>
+                <li>You want no discovery search before the real call.</li>
+              </ul>
+            </section>
+            <section>
+              <h3>Test progressive disclosure</h3>
+              <ul>
+                <li>The catalog has dozens or hundreds of long-tail tools.</li>
+                <li>Multiple servers create a large standing schema surface.</li>
+                <li>Measurement shows schemas are material before work begins.</li>
+                <li>You can evaluate retrieval quality and the added search step.</li>
+              </ul>
+            </section>
+          </div>
+          <p>DeepSeek's pinned MCP client documentation says discovered tools are registered as native tools and their data-dependent schema cost is paid on every request while registered. See the <a href="https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/mcp/mcp-client/README.md">official client documentation</a> and the <a href="https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/docs/architecture.md">pinned architecture</a>. The broader MCP search-first design is also being discussed in <a href="https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1576">SEP-1576</a>.</p>
+
+          <h2 id="evidence">Read the two measurements separately</h2>
+          <h3>Fixed 1,000-tool component fixture</h3>
+          <p><strong>647,962 B → 1,114 B</strong> measures serialized registered tool-schema JSON bytes only. It is not a provider-token, cost, latency, stability, or task-quality result. Inspect the <a href="https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md">rc.9 benchmark</a>.</p>
+
+          <h3>Separate three-task DeepSeek Harness pilot</h3>
+          <p>Both arms completed the same three fixed tasks: <strong>3/3 vs 3/3</strong>. The official direct client made the selected tool call; MCP Lens first called <code>mcp_search</code>, then <code>mcp_call</code>.</p>
+          <div class="article-table-wrap">
+            <table>
+              <thead><tr><th>Observed metric</th><th>Official direct client</th><th>MCP Lens</th></tr></thead>
+              <tbody>
+                <tr><td>Completed tasks</td><td>3/3</td><td>3/3</td></tr>
+                <tr><td>MCP path</td><td>Direct selected-tool call</td><td><code>mcp_search</code> → <code>mcp_call</code></td></tr>
+                <tr><td>Output tokens</td><td>491</td><td>794</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>These three cases show task-completion parity and expose the added discovery work. They do not establish a general quality, latency, cost, or stability result. Inspect the <a href="https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/docs/LIVE_DEEPSEEK_PILOT.md">complete pilot record</a>.</p>
+
+          <h2 id="scope">What MCP Lens changes—and what it cannot fix</h2>
+          <div class="article-decision-grid">
+            <section>
+              <h3>MCP Lens does</h3>
+              <ul>
+                <li>Keep the model-facing MCP surface at <code>mcp_search</code> and <code>mcp_call</code>.</li>
+                <li>Return a bounded candidate set with exact schemas after search.</li>
+                <li>Call one explicit server and tool after another policy check.</li>
+                <li>Start with <code>allowTools: []</code>, so exposure is opt-in.</li>
+              </ul>
+            </section>
+            <section>
+              <h3>MCP Lens does not</h3>
+              <ul>
+                <li>Shrink tool-result text or conversation history retained by Harness.</li>
+                <li>Reduce model reasoning or final-answer length.</li>
+                <li>Fix cache misses unrelated to the tool surface.</li>
+                <li>Guarantee lower tokens, cost, latency, stability, or better task quality.</li>
+                <li>Sandbox remote MCP processes or replace endpoint security.</li>
+              </ul>
+            </section>
+          </div>
+
+          <h2 id="faq">Direct answers</h2>
+          <h3>Why is DeepSeek Harness using so many tokens?</h3>
+          <p>High usage can come from standing tool schemas, retained tool results and history, repeated model steps, reasoning and output, or prompt-cache misses. Split those layers before changing the MCP setup.</p>
+          <h3>How can I tell whether MCP tool schemas are the cause?</h3>
+          <p>Measure tool count and serialized <code>request/header.tools</code> JSON on each request. If that surface is large before any tool result exists, and a controlled run with fewer visible tools reduces the same layer, schema bloat is a plausible cause.</p>
+          <h3>Does MCP Lens guarantee lower total token usage?</h3>
+          <p>No. Schema JSON bytes are not tokens. The separate three-task pilot also shows that Lens added a search step and used more output tokens in those cases.</p>
+        </div>
+
+        <footer class="article-footer">
+          <a class="button button-primary" href="../">Measure your schema locally</a>
+          <a class="button button-secondary" href="https://github.com/labmimors/dsh-mcp-lens#install">Review the install guide</a>
+          <a class="button button-ghost" href="https://github.com/labmimors/dsh-mcp-lens">Inspect the source</a>
+        </footer>
+      </article>
+    </main>
+  </body>
+</html>

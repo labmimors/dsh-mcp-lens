@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeepSeek Harness context exceeded / Token 太多？分层诊断</title>
+    <meta
+      name="description"
+      content="DeepSeek Harness context exceeded 或 Token 用量过高？先拆分 MCP 工具 Schema、工具结果、历史、重复步骤、推理输出与缓存未命中，再选择真正有效的修复。"
+    />
+    <meta name="keywords" content="DeepSeek Harness context exceeded, DeepSeek Harness Token 太多, MCP 工具 Schema 膨胀, MCP Token 开销, dsh MCP 工具" />
+    <link rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/" />
+    <link rel="alternate" hreflang="en" href="https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/" />
+    <link rel="alternate" hreflang="x-default" href="https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="MCP Lens" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:title" content="DeepSeek Harness context exceeded / Token 太多？分层诊断" />
+    <meta property="og:description" content="修改 MCP 配置前，先找到 DeepSeek Harness 上下文增长的真正来源。" />
+    <meta property="og:url" content="https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/" />
+    <meta property="og:image" content="https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DeepSeek Harness context exceeded / Token 太多？分层诊断" />
+    <meta name="twitter:description" content="先拆分工具 Schema、历史、重复步骤、模型输出与缓存未命中，再选择修复。" />
+    <meta name="twitter:image" content="https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078" />
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "TechArticle",
+            "@id": "https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/#article",
+            "headline": "DeepSeek Harness context exceeded 或 Token 太多？先定位真正的上下文来源",
+            "description": "拆分 MCP 工具 Schema、工具结果、历史、重复步骤、推理输出与缓存未命中，再选择真正有效的修复。",
+            "url": "https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/",
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": "https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/"
+            },
+            "datePublished": "2026-08-16",
+            "dateModified": "2026-08-16",
+            "inLanguage": "zh-CN",
+            "author": {
+              "@type": "Organization",
+              "name": "labmimors",
+              "url": "https://github.com/labmimors"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "labmimors",
+              "url": "https://github.com/labmimors"
+            },
+            "about": [
+              { "@type": "SoftwareApplication", "name": "DeepSeek Harness", "alternateName": "dsh" },
+              { "@type": "Thing", "name": "Model Context Protocol" },
+              { "@type": "SoftwareApplication", "name": "MCP Lens", "softwareVersion": "0.1.0-rc.9" }
+            ],
+            "citation": [
+              "https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/mcp/mcp-client/README.md",
+              "https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/docs/architecture.md",
+              "https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1576",
+              "https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md",
+              "https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/docs/LIVE_DEEPSEEK_PILOT.zh-CN.md"
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "为什么 DeepSeek Harness 会使用这么多 Token？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "高用量可能来自常驻工具 Schema、保留的工具结果与历史、重复模型步骤、推理与输出，或 Prompt Cache 未命中。修改 MCP 配置前应先把这些层拆开。"
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "如何判断 MCP 工具 Schema 是不是主因？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "逐请求量测工具数量和 request/header.tools 的序列化 JSON。如果任何工具结果出现前这个表面就很大，而且只减少可见工具的对照运行让同一层收缩，Schema 膨胀才是合理主因。"
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "MCP Lens 能保证总 Token 更低吗？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "不能。固定夹具量测的是 Schema JSON 字节，不是 Token。独立三任务 Pilot 中两边都是 3/3 完成，但 Lens 多一次搜索，输出 Token 为 794，官方直连为 491。"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="page article-shell">
+      <nav class="article-nav" aria-label="文章导航">
+        <a href="../../">Schema 量测器</a>
+        <a href="../1000-tool-tax/">1000 工具实测</a>
+        <a lang="en" href="../../deepseek-harness-too-many-tokens/">English</a>
+      </nav>
+
+      <article class="article">
+        <header class="article-hero">
+          <p class="eyebrow">DeepSeek Harness 上下文分层诊断</p>
+          <h1>Context exceeded 或 Token 太多？</h1>
+          <p class="article-deck">不要一上来就压缩历史。先拆分常驻 MCP Schema、保留的工具结果、重复模型步骤、推理与输出，以及 Prompt Cache 未命中；然后只修改真正增长的那一层。</p>
+          <p class="article-meta">更新于 2026-08-16 · 证据边界明确 · 由 MCP Lens 维护者撰写</p>
+        </header>
+
+        <section class="article-proof" aria-label="指南证据边界">
+          <div><span>可能原因</span><strong>5 个独立层</strong></div>
+          <div><span>固定 Schema 夹具</span><strong>647,962 B → 1,114 B</strong></div>
+          <div><span>独立 Pilot 完成</span><strong>3/3 vs 3/3</strong></div>
+          <div><span>Pilot 输出 Token</span><strong>491 vs 794</strong></div>
+        </section>
+
+        <div class="article-body">
+          <p class="article-lead">先说结论：只有当模型可见的工具表面在有效工作开始前就已经很大时，MCP 工具 Schema 膨胀才是主因。如果增长发生在读文件、返回工具结果或多轮步骤之后，Schema Gateway 修错了层。</p>
+
+          <aside class="article-callout" aria-label="DeepSeek Harness 范围"><strong>本文说的是哪个 Harness？</strong> 本文讨论 <strong>deepseek-ai 开源的 DeepSeek Harness（<code>dsh</code>）</strong>，不是持续交付平台 Harness.io。</aside>
+
+          <h2 id="five-causes">五类原因会制造同一个症状</h2>
+          <p>总用量只是记账结果，不是根因分析。先看请求从什么时候开始增长。</p>
+          <div class="article-table-wrap">
+            <table>
+              <thead><tr><th>层</th><th>信号</th><th>应该量测什么</th></tr></thead>
+              <tbody>
+                <tr><td><strong>常驻工具 Schema</strong></td><td>第一次有效工具调用前，输入已经很大。</td><td>逐请求统计工具数量，并序列化 <code>request/header.tools</code>。</td></tr>
+                <tr><td><strong>工具结果与历史</strong></td><td>搜索、读文件、日志或冗长调用后，输入持续增长。</td><td>分别量测每条保留消息、工具参数与面向模型的结果。</td></tr>
+                <tr><td><strong>重复模型步骤</strong></td><td>单次请求看似正常，但会话累计值很高。</td><td>统计每个 Turn 的模型请求数，区分分请求与累计用量。</td></tr>
+                <tr><td><strong>推理与输出</strong></td><td>输入已受控，但 Completion 用量仍然很高。</td><td>把供应商报告的 Output 与 Reasoning 字段和 Input 分开。</td></tr>
+                <tr><td><strong>Prompt Cache 未命中</strong></td><td>工具列表或 Schema 变化后，未缓存输入跳升。</td><td>逐请求比较 Cache-read 与 Uncached Input，并与工具表面变化对齐。</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="audit">六层审计找到最先增长的来源</h2>
+          <ol>
+            <li><strong>定义数字。</strong> 它是单次请求还是整段会话？拆分 Input、Cache-read Input、Output 与 Reasoning。</li>
+            <li><strong>量测 Schema。</strong> 逐请求记录工具数量和工具 Schema JSON 序列化字节。</li>
+            <li><strong>量测历史。</strong> 把载荷归因到系统文本、消息、工具参数和渲染后的工具结果。</li>
+            <li><strong>统计步骤。</strong> 把每次模型请求与前后工具调用对应起来。</li>
+            <li><strong>读取供应商 Usage。</strong> 本地 JSON 大小只是诊断代理指标，不能直接换算 Token。</li>
+            <li><strong>只改一层做对照。</strong> 固定模型、任务、Server 与 Harness 配置，只改变工具曝光方式。</li>
+          </ol>
+          <aside class="article-callout" aria-label="Schema 层判断规则"><strong>判断规则：</strong>如果 <code>request/header.tools</code> 不是首个请求的重要组成部分，Progressive Disclosure 大概率无法修复上下文增长的主导来源。</aside>
+
+          <h2 id="choose-path">原生 MCP 是基线；Progressive Disclosure 是有代价的交换</h2>
+          <p>DeepSeek Harness 采用插件优先架构。插件可以扩展工具注册表，无需修改 Agent Loop。这让两条路径都能组合，但不代表其中一条永远更好。</p>
+          <div class="article-decision-grid">
+            <section>
+              <h3>保留官方原生 Client</h3>
+              <ul>
+                <li>目录小而稳定。</li>
+                <li>模型应该立即收到每个精确 Schema。</li>
+                <li>直接调用比缩小常驻工具表面更重要。</li>
+                <li>不希望真实调用前增加发现搜索。</li>
+              </ul>
+            </section>
+            <section>
+              <h3>测试 Progressive Disclosure</h3>
+              <ul>
+                <li>目录有几十或几百个长尾工具。</li>
+                <li>多个 Server 制造了巨大的常驻 Schema 表面。</li>
+                <li>量测显示有效工作前 Schema 已占明显比例。</li>
+                <li>可以同时评估检索质量与新增搜索步骤。</li>
+              </ul>
+            </section>
+          </div>
+          <p>DeepSeek 固定版本的 MCP Client 文档说明，发现到的工具会注册为原生工具；只要仍处于注册状态，其数据相关 Schema 成本会出现在每次请求中。参见<a href="https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/mcp/mcp-client/README.md">官方 Client 文档</a>与<a href="https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/docs/architecture.md">固定版本架构</a>。MCP 社区也在 <a href="https://github.com/modelcontextprotocol/modelcontextprotocol/issues/1576">SEP-1576</a> 中讨论先搜索再曝光的通用设计。</p>
+
+          <h2 id="evidence">把两组测量分开理解</h2>
+          <h3>固定 1000 工具组件夹具</h3>
+          <p><strong>647,962 B → 1,114 B</strong> 只量测已注册工具 Schema 的序列化 JSON 字节。它不是供应商 Token、成本、延迟、稳定性或任务质量结果。检查 <a href="https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md">rc.9 Benchmark</a>。</p>
+
+          <h3>独立三任务 DeepSeek Harness Pilot</h3>
+          <p>两组都完成相同的三个固定任务：<strong>3/3 vs 3/3</strong>。官方直连直接调用选中工具；MCP Lens 先调用 <code>mcp_search</code>，再调用 <code>mcp_call</code>。</p>
+          <div class="article-table-wrap">
+            <table>
+              <thead><tr><th>观察指标</th><th>官方直连 Client</th><th>MCP Lens</th></tr></thead>
+              <tbody>
+                <tr><td>完成任务</td><td>3/3</td><td>3/3</td></tr>
+                <tr><td>MCP 路径</td><td>直接调用选中工具</td><td><code>mcp_search</code> → <code>mcp_call</code></td></tr>
+                <tr><td>输出 Token</td><td>491</td><td>794</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>这三个案例显示任务完成持平，并暴露了新增发现工作；它们不能证明普遍质量、延迟、成本或稳定性结果。检查<a href="https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/docs/LIVE_DEEPSEEK_PILOT.zh-CN.md">完整 Pilot 记录</a>。</p>
+
+          <h2 id="scope">MCP Lens 改变什么，又不能修复什么</h2>
+          <div class="article-decision-grid">
+            <section>
+              <h3>MCP Lens 会做</h3>
+              <ul>
+                <li>把模型可见 MCP 表面固定为 <code>mcp_search</code> 与 <code>mcp_call</code>。</li>
+                <li>搜索后返回有界候选集合与精确 Schema。</li>
+                <li>再次检查策略后，调用一个明确的 Server 与 Tool。</li>
+                <li>以 <code>allowTools: []</code> 启动，让能力曝光必须显式开启。</li>
+              </ul>
+            </section>
+            <section>
+              <h3>MCP Lens 不会做</h3>
+              <ul>
+                <li>缩短 Harness 已保留的工具结果文本或会话历史。</li>
+                <li>减少模型推理或最终回答长度。</li>
+                <li>修复与工具表面无关的 Cache Miss。</li>
+                <li>保证更低 Token、成本、延迟、稳定性或更好任务质量。</li>
+                <li>隔离远程 MCP 进程或替代端点安全。</li>
+              </ul>
+            </section>
+          </div>
+
+          <h2 id="faq">直接回答</h2>
+          <h3>为什么 DeepSeek Harness 会使用这么多 Token？</h3>
+          <p>高用量可能来自常驻工具 Schema、保留的工具结果与历史、重复模型步骤、推理与输出，或 Prompt Cache 未命中。修改 MCP 配置前应先把这些层拆开。</p>
+          <h3>如何判断 MCP 工具 Schema 是不是主因？</h3>
+          <p>逐请求量测工具数量和 <code>request/header.tools</code> 的序列化 JSON。如果任何工具结果出现前这个表面就很大，而且只减少可见工具的对照运行让同一层收缩，Schema 膨胀才是合理主因。</p>
+          <h3>MCP Lens 能保证总 Token 更低吗？</h3>
+          <p>不能。Schema JSON 字节不是 Token；独立三任务 Pilot 还显示 Lens 增加了一次搜索，并在这些案例中使用了更多输出 Token。</p>
+        </div>
+
+        <footer class="article-footer">
+          <a class="button button-primary" href="../../">在本地量测 Schema</a>
+          <a class="button button-secondary" href="https://github.com/labmimors/dsh-mcp-lens#install">检查安装指南</a>
+          <a class="button button-ghost" href="https://github.com/labmimors/dsh-mcp-lens">检查源代码</a>
+        </footer>
+      </article>
+    </main>
+  </body>
+</html>

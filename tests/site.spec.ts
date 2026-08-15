@@ -55,6 +55,12 @@ function packageManifestIncludes(files: readonly string[], target: string): bool
   })
 }
 
+function parseStructuredData(html: string): Record<string, unknown> {
+  const match = html.match(/<script\s+type=["']application\/ld\+json["']>([\s\S]*?)<\/script>/)
+  if (!match?.[1]) throw new Error('Missing JSON-LD block')
+  return JSON.parse(match[1]) as Record<string, unknown>
+}
+
 const frozenPilotDate = '2026-08-14'
 const repositoryImageUrl = 'https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078'
 const lensReleaseCandidate = '0.1.0-rc.9'
@@ -336,6 +342,58 @@ describe('catalog calculator publishing contract', () => {
     expect(styles).toContain('.article-shell')
     expect(styles).toContain('.article-proof')
     expect(styles).toContain('width: min(1040px, calc(100% - 20px));')
+  })
+
+  it('publishes bilingual DeepSeek Harness context diagnostics with explicit evidence limits', async () => {
+    const englishPath = join(siteRoot, 'deepseek-harness-too-many-tokens', 'index.html')
+    const chinesePath = join(siteRoot, 'zh-CN', 'deepseek-harness-too-many-tokens', 'index.html')
+    const [english, chinese, home, sitemap] = await Promise.all([
+      readFile(englishPath, 'utf8'),
+      readFile(chinesePath, 'utf8'),
+      readFile(join(siteRoot, 'index.html'), 'utf8'),
+      readFile(join(siteRoot, 'sitemap.xml'), 'utf8'),
+    ])
+
+    expect(home).toContain('href="./deepseek-harness-too-many-tokens/"')
+    expect(english).toContain('rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/"')
+    expect(chinese).toContain('rel="canonical" href="https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/"')
+    expect(english).toContain('href="../styles.css"')
+    expect(chinese).toContain('href="../../styles.css"')
+
+    for (const html of [english, chinese]) {
+      expect(html).toContain('DeepSeek Harness')
+      expect(html).toContain('context exceeded')
+      expect(html).toContain('hreflang="en"')
+      expect(html).toContain('hreflang="zh-CN"')
+      expect(html).toContain('hreflang="x-default"')
+      expect(html).toContain('647,962 B → 1,114 B')
+      expect(html).toContain('3/3 vs 3/3')
+      expect(html).toContain('491')
+      expect(html).toContain('794')
+      expect(html).toContain('request/header.tools')
+      expect(html).toContain('allowTools: []')
+      expect(html).not.toMatch(/<script(?!\s+type="application\/ld\+json")/)
+
+      const structuredData = parseStructuredData(html)
+      const graph = structuredData['@graph'] as Array<Record<string, unknown>>
+      expect(graph.map(node => node['@type'])).toEqual(['TechArticle', 'FAQPage'])
+      expect(graph[0]).toMatchObject({
+        datePublished: '2026-08-16',
+        dateModified: '2026-08-16',
+      })
+    }
+
+    expect(english).toContain('tool-schema JSON bytes only')
+    expect(english).toContain('does not')
+    expect(english).toContain('Shrink tool-result text or conversation history retained by Harness')
+    expect(english).toContain('Fix cache misses unrelated to the tool surface')
+    expect(chinese).toContain('只量测已注册工具 Schema 的序列化 JSON 字节')
+    expect(chinese).toContain('MCP Lens 不会做')
+    expect(chinese).toContain('缩短 Harness 已保留的工具结果文本或会话历史')
+    expect(chinese).toContain('修复与工具表面无关的 Cache Miss')
+
+    expect(sitemap).toContain('<loc>https://labmimors.github.io/dsh-mcp-lens/deepseek-harness-too-many-tokens/</loc>')
+    expect(sitemap).toContain('<loc>https://labmimors.github.io/dsh-mcp-lens/zh-CN/deepseek-harness-too-many-tokens/</loc>')
   })
 
   it('identifies the Lens rc.9 candidate without rewriting rc.6 Harness dependencies, pilot history, or the rc.7 Action', async () => {
