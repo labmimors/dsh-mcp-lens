@@ -67,8 +67,16 @@ const lensReleaseCandidate = '0.1.0-rc.9'
 const schemaActionRelease = '0.1.0-rc.7'
 const harnessPilotVersion = '0.1.0-rc.6'
 const immutableCandidateRevision = 'f21169f921e7ed032a4db5062685afb6f948c2d1'
+const googleSiteVerificationFile = 'googlef86c6ccefaff7c89.html'
+const googleSiteVerificationToken = `google-site-verification: ${googleSiteVerificationFile}`
 
 describe('catalog calculator publishing contract', () => {
+  it('keeps the Google Search Console ownership file at the site root', async () => {
+    const verification = await readFile(join(siteRoot, googleSiteVerificationFile), 'utf8')
+
+    expect(verification.trim()).toBe(googleSiteVerificationToken)
+  })
+
   it('ships every referenced static asset and required DOM target', async () => {
     const assets = ['index.html', 'app.js', 'share-metrics.js', 'styles.css', 'favicon.svg']
     await Promise.all(assets.map(asset => access(join(siteRoot, asset))))
