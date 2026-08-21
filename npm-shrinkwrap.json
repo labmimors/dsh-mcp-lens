@@ -52,7 +52,6 @@
       "integrity": "sha512-YBdskTU2Po1kru3GgcUWUbkTsPMA9LkSQDAY8rBkFJeajdgcQad3QPJZE26JyK99Xb6HaASvoXg2DSUTeN/0Nw==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "@deepseek-ai/cosmokit": "^1.8.2",
         "@standard-schema/spec": "^1.1.0"
@@ -97,28 +96,28 @@
       }
     },
     "node_modules/@deepseek-ai/dsh-attachment": {
-      "version": "0.1.0-rc.6",
-      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-attachment/-/dsh-attachment-0.1.0-rc.6.tgz",
-      "integrity": "sha512-3P6N17NQ8jqSQGzeCs+svCIqArU8oq0YmgEAo+axN9aVuUDferWU4DLRSX59UGpmyldX4LQn81toA+c+DqMcHg==",
+      "version": "0.1.0-rc.7",
+      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-attachment/-/dsh-attachment-0.1.0-rc.7.tgz",
+      "integrity": "sha512-rsR/xVNOGIig8gXxhrKnkd6YD7aYliGtA/e7b4DlPawMpLhsItAh0HQ832n8LJn1aGZxKf68y9PRgzfljsveOQ==",
       "dev": true,
       "license": "MIT",
       "peer": true,
       "peerDependencies": {
         "@deepseek-ai/cordis": "^4.0.1",
-        "@deepseek-ai/dsh-brand": "^0.1.0-rc.6",
-        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6"
+        "@deepseek-ai/dsh-brand": "^0.1.0-rc.7",
+        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.7"
       }
     },
     "node_modules/@deepseek-ai/dsh-brand": {
-      "version": "0.1.0-rc.6",
-      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-brand/-/dsh-brand-0.1.0-rc.6.tgz",
-      "integrity": "sha512-E8j9Nby24qP4rfrdcfc7bpt1CHpGT3tYmycOJJkEOH4ptIdT1m2ro9nmnSd5CWYukTr64A77vjm2WGqHRI92UA==",
+      "version": "0.1.0-rc.7",
+      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-brand/-/dsh-brand-0.1.0-rc.7.tgz",
+      "integrity": "sha512-P7+w0fN40yXXQkV360p6jQi63pcl68OOWebNGN5gf8w8sguvni2mA1cU8RLZzDkRNFSZD+BCw3D4uWYM+hhh7A==",
       "dev": true,
       "license": "MIT",
       "peer": true,
       "peerDependencies": {
         "@deepseek-ai/cordis": "^4.0.1",
-        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6"
+        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.7"
       }
     },
     "node_modules/@deepseek-ai/dsh-code-runtime": {
@@ -134,9 +133,9 @@
       }
     },
     "node_modules/@deepseek-ai/dsh-invariants": {
-      "version": "0.1.0-rc.6",
-      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-invariants/-/dsh-invariants-0.1.0-rc.6.tgz",
-      "integrity": "sha512-WfEfOi99a4cpOugRAHTBSTnesLieu3ist1q9PXDXFBHX++K1rAl9+sB7YrdnbB8LH0UOY532gS9xJUYU6w0SLw==",
+      "version": "0.1.0-rc.7",
+      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-invariants/-/dsh-invariants-0.1.0-rc.7.tgz",
+      "integrity": "sha512-PnO1F4aZGUmqZPyuPJpBUfQ4DZmjCGCNGr0yuN2iURTP/e6h0kGnTNTYgR2NqMvAtpP66WNiHhvH2LMqumk1+A==",
       "dev": true,
       "license": "MIT",
       "peer": true,
@@ -148,21 +147,20 @@
       }
     },
     "node_modules/@deepseek-ai/dsh-llm": {
-      "version": "0.1.0-rc.6",
-      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-llm/-/dsh-llm-0.1.0-rc.6.tgz",
-      "integrity": "sha512-kuFGC8bHlzGTwlRxQhXjf3CYWl8M4NzH+EYIkrW8rri4iMc9W53xrdvkil5No/DUlMm8g1u7GdeiWYFy0TMvtA==",
+      "version": "0.1.0-rc.7",
+      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-llm/-/dsh-llm-0.1.0-rc.7.tgz",
+      "integrity": "sha512-VaB9kQ8XOA+R5jtsWf92QMc1WpaatEAFUvQePGUYrzQ7Z86b9VhQQzmchh5VmknT4oRSSdn0re5tReCvfcYNXQ==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "@deepseek-ai/schemastery": "^3.18.1"
       },
       "peerDependencies": {
         "@deepseek-ai/cordis": "^4.0.1",
-        "@deepseek-ai/dsh-attachment": "^0.1.0-rc.6",
-        "@deepseek-ai/dsh-brand": "^0.1.0-rc.6",
-        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6",
-        "@deepseek-ai/dsh-timeout": "^0.1.0-rc.6"
+        "@deepseek-ai/dsh-attachment": "^0.1.0-rc.7",
+        "@deepseek-ai/dsh-brand": "^0.1.0-rc.7",
+        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.7",
+        "@deepseek-ai/dsh-timeout": "^0.1.0-rc.7"
       }
     },
     "node_modules/@deepseek-ai/dsh-mcp-client": {
@@ -219,7 +217,6 @@
       "integrity": "sha512-nZaZRjSnE1he+GAd14vURAH7n3Fw5eGx3nzMbkB96Y6Qx+oQB/7PTuXxKVxlCh8TSfMJTf851ahwWb1eALjKlw==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "peerDependencies": {
         "@deepseek-ai/cordis": "^4.0.1",
         "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6"
@@ -231,7 +228,6 @@
       "integrity": "sha512-E7g+XChh4q4/wX++v56z1pV4SA1Rtz42xkznLPPi9FlXrrzJxwHMOUzBZ9Rz3Y1kLhQ++HJG3ZatmNx3rjFilg==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "@deepseek-ai/schemastery": "^3.18.1"
       },
@@ -243,15 +239,15 @@
       }
     },
     "node_modules/@deepseek-ai/dsh-timeout": {
-      "version": "0.1.0-rc.6",
-      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-timeout/-/dsh-timeout-0.1.0-rc.6.tgz",
-      "integrity": "sha512-CUean0fAnfsJVszFEip7PsU/S26W+JfDFfsza2dCtlw8n6xlkbHA9Gjxdk2aTwqDGCgXEPkRW7mYkdJ0n6FR7w==",
+      "version": "0.1.0-rc.7",
+      "resolved": "https://registry.npmjs.org/@deepseek-ai/dsh-timeout/-/dsh-timeout-0.1.0-rc.7.tgz",
+      "integrity": "sha512-Ufl9G7zP7Tky/zkXscavEiolEfAwutfbPeLb5sUU/tPQlDykhh1NwGrarNJ11fdR723zmA/3co4LgxtDtWCOEQ==",
       "dev": true,
       "license": "MIT",
       "peer": true,
       "peerDependencies": {
         "@deepseek-ai/cordis": "^4.0.1",
-        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.6"
+        "@deepseek-ai/dsh-invariants": "^0.1.0-rc.7"
       }
     },
     "node_modules/@deepseek-ai/dsh-tools": {
@@ -260,7 +256,6 @@
       "integrity": "sha512-Tu08EPK3JyK0iNjH4FGzu/1uADynNSS6SmwOLdfytUN0YNqwNuKFSt2OJUg19famNlTgy992DcHfDu0T+gLXFg==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "@deepseek-ai/schemastery": "^3.18.1"
       },
@@ -1125,7 +1120,6 @@
       "integrity": "sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "undici-types": "~8.3.0"
       }
@@ -2068,7 +2062,6 @@
       "resolved": "https://registry.npmjs.org/express/-/express-5.2.1.tgz",
       "integrity": "sha512-hIS4idWWai69NezIdRt2xFVofaF4j+6INOpJlVOLDO8zXGpUVEVzIYk12UUi2JzjEzWL3IOAxcTubgz9Po0yXw==",
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "accepts": "^2.0.0",
         "body-parser": "^2.2.1",
@@ -2323,7 +2316,6 @@
       "resolved": "https://registry.npmjs.org/hono/-/hono-4.13.2.tgz",
       "integrity": "sha512-JydRilDRkYBQMt9qR9U92mXxmbGqsqSn/IKOrh4e7/gEbn+0zSr8igTu0obwJoNGN4sez28DIql7FBHWydoJpA==",
       "license": "MIT",
-      "peer": true,
       "engines": {
         "node": ">=16.9.0"
       }
@@ -3053,7 +3045,6 @@
       "integrity": "sha512-rSr7irW0K7QRWzjdJXqZowkcRdDtjRduh43rBltnVKd0VFq839l1lJoDvGJb6gl7+4rTTCrPWu+YfujUL8Ug7w==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "@oxc-project/types": "=0.144.0",
         "@rolldown/pluginutils": "^1.0.0"
@@ -3471,7 +3462,6 @@
       "integrity": "sha512-FDf4L4sYzKtzWYhU/Xm0AQFdTjdIxNo9ElTf2mxXM6k8YMHXzYUe4yODVaXP4V9uMFbVg8c0qyBccK2OOxb45Q==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "esbuild": "~0.28.0"
       },
@@ -3522,7 +3512,6 @@
       "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
       "dev": true,
       "license": "Apache-2.0",
-      "peer": true,
       "bin": {
         "tsc": "bin/tsc",
         "tsserver": "bin/tsserver"
@@ -3589,7 +3578,6 @@
       "integrity": "sha512-EU/eS7BH3XROHh2YnBefjM6DBKA6ZeMZEYQbj7NLWg5wHYlhB8B/Mayd5XsgWq+NFYccDOTemRpdETWR6Ka/lw==",
       "dev": true,
       "license": "MIT",
-      "peer": true,
       "dependencies": {
         "lightningcss": "^1.33.0",
         "picomatch": "^4.0.5",
@@ -3854,7 +3842,6 @@
       "resolved": "https://registry.npmjs.org/zod/-/zod-4.4.3.tgz",
       "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==",
       "license": "MIT",
-      "peer": true,
       "funding": {
         "url": "https://github.com/sponsors/colinhacks"
       }
