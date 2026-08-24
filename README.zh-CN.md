@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-[官网](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [本地 Schema 计算器](https://labmimors.github.io/dsh-mcp-lens/) · [安装 rc.9](#install)
+[官网](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [本地 Schema 计算器](https://labmimors.github.io/dsh-mcp-lens/) · [安装 rc.10](#install)
 
 [![verify](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml/badge.svg)](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml)
 [![release](https://img.shields.io/github/v/release/labmimors/dsh-mcp-lens?include_prereleases)](https://github.com/labmimors/dsh-mcp-lens/releases)
@@ -28,9 +28,11 @@ MCP Lens 让 DeepSeek Harness 通过两个稳定入口搜索并调用 1,000 个�
 
 <a id="install"></a>
 
-## 安装 rc.9
+## 安装 rc.10
 
-前置要求：DeepSeek Harness `0.1.0-rc.6`、Node.js `^22.19.0` 或 `>=24.0.0`，并且 `pnpm` 已在 `PATH` 中。`dsh plugin` 会把安装交给 pnpm 执行。
+前置要求：DeepSeek Harness `0.1.1-rc.2`、Node.js `^22.19.0` 或 `>=24.0.0`，并且 `pnpm` 已在 `PATH` 中。`dsh plugin` 会把安装交给 pnpm 执行。请把 Harness 根包或组件包明确固定到 rc.2；目前部分组件的 `latest` 标签仍指向更早的预发布版。
+
+如果 Profile 必须继续使用 DeepSeek Harness `0.1.0-rc.6`，请把 MCP Lens 固定在 `0.1.0-rc.9`；rc.10 会明确使用当前 rc.2 组件图，不混装两条预发布版本线。
 
 最快安装方式：
 
@@ -41,25 +43,25 @@ dsh plugin --profile web add dsh-mcp-lens@next
 需要可复现安装时，固定到已审核版本：
 
 ```sh
-dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.9
+dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.10
 ```
 
-npm 的 `next` 标签目前解析到 `0.1.0-rc.9`。发布后下载的 Registry Tarball 已与审核过的 GitHub rc.9 附件逐字节比较一致（`SHA-256 a8e4bf8389d0107379c13c845feb3c7c0c26d4aa3312391640e1fed074d39dbc`），并在全新的 DeepSeek Harness rc.6 Profile 中完成真实安装验证。
+rc.10 的发布验证会把 npm Registry Tarball 与审核过的 GitHub 附件逐字节比较，并在全新的 DeepSeek Harness rc.2 Profile 中完成安装。只有两项检查都通过且没有嵌套旧版 DSH 依赖图，发布才算完成。
 
 <details>
 <summary>改为校验并安装 GitHub Release 附件</summary>
 
-rc.9 Release 页面已经列出 `.tgz` 附件与 SHA-256。先下载文件，把本地摘要与该附件显示的摘要逐字比较，确认一致后再把本地文件安装到 Harness Profile。某些 pnpm 版本直接接收 GitHub 重定向后的附件 URL 时会报 `ERR_PNPM_MISSING_TARBALL_INTEGRITY`。
+rc.10 Release 页面是审核版 `.tgz` 附件与 SHA-256 的来源。先下载文件，把本地摘要与该附件显示的摘要逐字比较，确认一致后再把本地文件安装到 Harness Profile。某些 pnpm 版本直接接收 GitHub 重定向后的附件 URL 时会报 `ERR_PNPM_MISSING_TARBALL_INTEGRITY`。
 
 ```sh
-curl -fL --retry 3 -o dsh-mcp-lens-0.1.0-rc.9.tgz \
-  https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.9/dsh-mcp-lens-0.1.0-rc.9.tgz
-shasum -a 256 dsh-mcp-lens-0.1.0-rc.9.tgz
-# 与 rc.9 Release 页面中 .tgz 附件显示的 SHA-256 逐字比较。
-dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.9.tgz
+curl -fL --retry 3 -o dsh-mcp-lens-0.1.0-rc.10.tgz \
+  https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.10/dsh-mcp-lens-0.1.0-rc.10.tgz
+shasum -a 256 dsh-mcp-lens-0.1.0-rc.10.tgz
+# 与 rc.10 Release 页面中 .tgz 附件显示的 SHA-256 逐字比较。
+dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.10.tgz
 ```
 
-Windows 用户可从 [rc.9 Release 页面](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9)下载同一附件，把 `Get-FileHash -Algorithm SHA256` 的结果与附件显示的摘要逐字比较；只有一致时才把本地路径交给 `dsh plugin add`。
+Windows 用户可从 [rc.10 Release 页面](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10)下载同一附件，把 `Get-FileHash -Algorithm SHA256` 的结果与附件显示的摘要逐字比较；只有一致时才把本地路径交给 `dsh plugin add`。
 
 </details>
 
@@ -109,10 +111,10 @@ Release 附件是预编译 tarball，不需要依赖构建权限。下面使用�
 <details>
 <summary>改为安装已审核的源码</summary>
 
-如需改装已审核的 rc.9 源码 Tag：
+如需改装已审核的 rc.10 源码 Tag：
 
 ```sh
-dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.9
+dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.10
 ```
 
 Git 安装会下载源码并运行 `prepare`。使用 pnpm 10+ 时，请在 `$DSH_HOME/profiles/web/pnpm-workspace.yaml`（默认 `~/.dsh/profiles/web/pnpm-workspace.yaml`）中加入准确包名，然后重新安装：
@@ -212,12 +214,18 @@ Lens 用首次使用时的一次搜索，换取接近恒定的常驻 MCP Schema 
 
 **速度：**目前没有可以普遍承诺的延迟提升。首次未缓存使用会增加搜索和连接工作；大型工具库的较小请求可能抵消这部分开销，请以自己的工作负载实测。
 
+### rc.10 改了什么
+
+- 精确面向当前 DeepSeek Harness `0.1.1-rc.2` 组件图；rc.6 Profile 继续使用 MCP Lens rc.9。
+- 开发期所有 DSH 组件都精确固定到 `0.1.1-rc.2`，并新增 Packed Install 检查，发现嵌套旧版 DSH 依赖图时直接失败。
+- 不改 MCP Lens Runtime 行为或检索排序。完整源码 Checkout 已通过 `100/100` 个自动化测试、类型检查、构建、Benchmark 重放和全新 Harness rc.2 安装检查。
+
 ### rc.9 改了什么
 
 - 搜索只为每个 Lens 自有、深度冻结的可见目录构建一次分词与排序索引；相同冻结策略下的后续查询直接复用。目录刷新会产生新的 Snapshot 身份并重建索引；调用方持有的可变 Snapshot 永远不会进入身份缓存。
 - edit-distance-one 拼写容错改为线性时间的准确单编辑检查，并在扫描 250,000 个名称／标题候选 Token 后 fail-closed，为唯一的词表扫描路径设置上限。
 - 一次无标签重放在冻结的公开 Holdout B 输入上，对 102 个工具的 `304/304` 个 Prompt 全部复现 sealed rc.8 candidate 的 Ranking 与逐结果 Score。该重放没有读取私有标签、聚合 Score 输出或 Score Receipt；它证明排序一致，不是一次新的评测。
-- 完整源码 Checkout 已通过 `98/98` 个自动化测试、类型检查与构建；精简 Runtime 包刻意不携带测试和 Benchmark Runner。
+- 精简 Runtime 包刻意不携带测试和 Benchmark Runner。
 
 ## 实测结果
 
@@ -265,10 +273,12 @@ rc.7 的 Runtime 排序器与评测所用 rc.6 Runtime Baseline 逐字节相同�
 ```sh
 npm ci
 npm run verify
+npm run verify:dsh-install
+npm run verify:dsh-profile
 npm run bench -- --output benchmark.json
 ```
 
-这些命令只面向完整源码 Checkout。精简的预编译 Runtime 包会刻意排除 `scripts/`、测试、Benchmark 源码与构建配置；解包 `.tgz` 后运行 `npm run verify` 或 `npm run bench` 不属于支持契约。准确指标、Fixture、依赖版本、源码摘要和测量限制见 [`benchmark/README.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md)。
+这些命令只面向完整源码 Checkout。精简的预编译 Runtime 包会刻意排除 `scripts/`、测试、Benchmark 源码与构建配置；解包 `.tgz` 后运行 `npm run verify`、任一 DSH 安装验证脚本或 `npm run bench` 不属于支持契约。准确指标、Fixture、依赖版本、源码摘要和测量限制见 [`benchmark/README.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md)。
 
 ## 在 CI 里阻止 Schema 失控增长
 
@@ -347,7 +357,7 @@ MCP Lens 不是沙箱：stdio Server 仍会在宿主机执行，HTTP Server 仍�
 - 安全问题：阅读 [`SECURITY.md`](SECURITY.md)，不要在公开 Issue 中披露未修复漏洞。
 - 参与贡献：阅读 [`CONTRIBUTING.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/CONTRIBUTING.md)。
 - 搜索质量：[提交脱敏后的搜索 Miss](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml)，帮助把真实失败转成回归 Fixture。
-- Release Candidate：[`v0.1.0-rc.9`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9)。
+- Release Candidate：[`v0.1.0-rc.10`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10)。
 
 DeepSeek Harness 当前通过带有 [`dsh-plugin`](https://github.com/topics/dsh-plugin) Topic 的公开 GitHub 仓库发现社区插件，并支持从 GitHub、tarball 或 npm 包安装。详见官方[插件发布教程](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.zh.md)。
 

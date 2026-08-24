@@ -32,6 +32,14 @@ jobs:
       - name: Verify
         run: npm run verify
 
+      - name: Verify packed install with current DeepSeek Harness components
+        if: matrix.node == '24.x'
+        run: npm run verify:dsh-install
+
+      - name: Verify fresh DeepSeek Harness profile
+        if: matrix.node == '24.x'
+        run: npm run verify:dsh-profile
+
       - name: Reproduce benchmark
         run: npm run bench -- --output benchmark.json
 
@@ -40,3 +48,30 @@ jobs:
 
       - name: Pack dry run
         run: npm pack --dry-run --json --ignore-scripts
+
+  verify-windows-profile:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify packed install with current DeepSeek Harness components
+        run: npm run verify:dsh-install
+
+      - name: Verify fresh DeepSeek Harness profile
+        run: npm run verify:dsh-profile

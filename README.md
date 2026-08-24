@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-[Website](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [Local schema calculator](https://labmimors.github.io/dsh-mcp-lens/) · [Install rc.9](#install)
+[Website](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [Local schema calculator](https://labmimors.github.io/dsh-mcp-lens/) · [Install rc.10](#install)
 
 [![verify](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml/badge.svg)](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml)
 [![release](https://img.shields.io/github/v/release/labmimors/dsh-mcp-lens?include_prereleases)](https://github.com/labmimors/dsh-mcp-lens/releases)
@@ -28,9 +28,11 @@ Use MCP Lens if you have dozens to thousands of MCP tools, multiple servers, or 
 
 <a id="install"></a>
 
-## Install rc.9
+## Install rc.10
 
-Prerequisites: DeepSeek Harness `0.1.0-rc.6`, Node.js `^22.19.0` or `>=24.0.0`, and `pnpm` on `PATH`. The `dsh plugin` command delegates installation to pnpm.
+Prerequisites: DeepSeek Harness `0.1.1-rc.2`, Node.js `^22.19.0` or `>=24.0.0`, and `pnpm` on `PATH`. The `dsh plugin` command delegates installation to pnpm. Pin the root Harness package or its component packages explicitly to rc.2; several component `latest` tags still resolve to an older prerelease.
+
+If your profile must remain on DeepSeek Harness `0.1.0-rc.6`, keep MCP Lens pinned to `0.1.0-rc.9`; rc.10 deliberately targets the current rc.2 component graph instead of mixing prerelease lines.
 
 Fastest install:
 
@@ -41,25 +43,25 @@ dsh plugin --profile web add dsh-mcp-lens@next
 For a reproducible install, pin the reviewed version:
 
 ```sh
-dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.9
+dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.10
 ```
 
-The npm `next` tag currently resolves to `0.1.0-rc.9`. The registry tarball was downloaded after publication and verified byte-for-byte against the reviewed GitHub rc.9 asset (`SHA-256 a8e4bf8389d0107379c13c845feb3c7c0c26d4aa3312391640e1fed074d39dbc`), then installed in a fresh DeepSeek Harness rc.6 profile.
+Release verification for rc.10 compares the npm registry tarball byte-for-byte with the reviewed GitHub asset and installs it in a fresh DeepSeek Harness rc.2 profile. The release is not complete until both checks pass without a nested legacy DSH dependency graph.
 
 <details>
 <summary>Verify and install the GitHub Release tarball instead</summary>
 
-The rc.9 Release page lists the `.tgz` asset and its SHA-256 digest. Download the file, compare its digest with the value shown for that exact Release asset, and only then install the local file into your Harness profile. Passing a redirected GitHub asset URL directly to pnpm can fail with `ERR_PNPM_MISSING_TARBALL_INTEGRITY` on some pnpm versions.
+The rc.10 Release page is the source for the reviewed `.tgz` asset and its SHA-256 digest. Download the file, compare its digest with the value shown for that exact Release asset, and only then install the local file into your Harness profile. Passing a redirected GitHub asset URL directly to pnpm can fail with `ERR_PNPM_MISSING_TARBALL_INTEGRITY` on some pnpm versions.
 
 ```sh
-curl -fL --retry 3 -o dsh-mcp-lens-0.1.0-rc.9.tgz \
-  https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.9/dsh-mcp-lens-0.1.0-rc.9.tgz
-shasum -a 256 dsh-mcp-lens-0.1.0-rc.9.tgz
-# Compare the output with the SHA-256 shown for the .tgz on the rc.9 Release page.
-dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.9.tgz
+curl -fL --retry 3 -o dsh-mcp-lens-0.1.0-rc.10.tgz \
+  https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.10/dsh-mcp-lens-0.1.0-rc.10.tgz
+shasum -a 256 dsh-mcp-lens-0.1.0-rc.10.tgz
+# Compare the output with the SHA-256 shown for the .tgz on the rc.10 Release page.
+dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.10.tgz
 ```
 
-On Windows, download the same asset from the [rc.9 Release page](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9), compare `Get-FileHash -Algorithm SHA256` with the digest shown for that asset, and pass its local path to `dsh plugin add` only if they match.
+On Windows, download the same asset from the [rc.10 Release page](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10), compare `Get-FileHash -Algorithm SHA256` with the digest shown for that asset, and pass its local path to `dsh plugin add` only if they match.
 
 </details>
 
@@ -109,10 +111,10 @@ The Release asset is a prebuilt tarball, so it needs no dependency build permiss
 <details>
 <summary>Install reviewed source instead</summary>
 
-To install the reviewed rc.9 source tag instead:
+To install the reviewed rc.10 source tag instead:
 
 ```sh
-dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.9
+dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.10
 ```
 
 Git installs fetch source and run `prepare`. With pnpm 10+, add this exact package key to `$DSH_HOME/profiles/web/pnpm-workspace.yaml` (default `~/.dsh/profiles/web/pnpm-workspace.yaml`), then rerun the command:
@@ -212,12 +214,18 @@ Lens trades a search step on first use for a nearly constant standing MCP schema
 
 **Speed:** there is no universal latency win to claim. The first uncached use adds search and connection work; smaller requests may offset that cost on large catalogs, so measure your own workload.
 
-### What rc.9 changes
+### What rc.10 changes
+
+- Targets the current DeepSeek Harness `0.1.1-rc.2` component graph exactly; rc.6 profiles remain on MCP Lens rc.9.
+- Keeps every development-time DSH component on exact `0.1.1-rc.2` versions and adds a packed-install check that rejects a nested legacy DSH graph.
+- Changes no MCP Lens runtime behavior or retrieval ranking. The full source checkout passes `100/100` automated tests, typechecking, build, benchmark reproduction, and the fresh Harness rc.2 install check.
+
+### What rc.9 changed
 
 - Search tokenizes and sorts each Lens-owned, deeply frozen visible catalog once, then reuses that in-memory index for repeated queries under the same frozen policy. A refresh creates a new snapshot identity and therefore a new index; caller-owned mutable snapshots are never identity-cached.
 - The one-edit typo fallback now uses a linear-time exactly-one-edit check and fails closed after 250,000 name/title candidate tokens, bounding its only vocabulary-scan route.
 - A label-free replay against the frozen public Holdout B inputs matched the sealed rc.8 candidate rankings and per-result scores for all `304/304` prompts over 102 tools. That replay read no private labels, aggregate score output, or score receipt; it verifies ranking parity, not a new evaluation result.
-- The full source checkout passes `98/98` automated tests, typechecking, and build. The compact runtime package intentionally excludes the test and benchmark runners.
+- The compact runtime package intentionally excludes the test and benchmark runners.
 
 ## Measured results
 
@@ -265,10 +273,12 @@ Reproduce the component result without an API key from a full source checkout:
 ```sh
 npm ci
 npm run verify
+npm run verify:dsh-install
+npm run verify:dsh-profile
 npm run bench -- --output benchmark.json
 ```
 
-These are source-checkout scripts. The compact prebuilt runtime package deliberately excludes `scripts/`, tests, benchmark sources, and build configuration; unpacking the `.tgz` is not a supported way to run `npm run verify` or `npm run bench`. The exact metric, fixture, dependency versions, source digest, and measurement limits are in [`benchmark/README.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md).
+These are source-checkout scripts. The compact prebuilt runtime package deliberately excludes `scripts/`, tests, benchmark sources, and build configuration; unpacking the `.tgz` is not a supported way to run `npm run verify`, either DSH install verifier, or `npm run bench`. The exact metric, fixture, dependency versions, source digest, and measurement limits are in [`benchmark/README.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/benchmark/README.md).
 
 ## Keep schema drift out of CI
 
@@ -347,7 +357,7 @@ See the shipped [`cordis.patch.yml`](cordis.patch.yml) for the canonical default
 - Security reports: read [`SECURITY.md`](SECURITY.md); do not disclose an unpatched exploit in a public issue.
 - Contributions: read [`CONTRIBUTING.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/CONTRIBUTING.md).
 - Search quality: [submit a sanitized search miss](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml) and help turn it into a regression fixture.
-- Release candidate: [`v0.1.0-rc.9`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9).
+- Release candidate: [`v0.1.0-rc.10`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10).
 
 DeepSeek Harness currently discovers community plugins through public GitHub repositories with the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic and installs them from GitHub, tarballs, or npm packages. See the official [plugin publishing guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md).
 

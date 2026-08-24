@@ -1,6 +1,6 @@
 {
   "name": "dsh-mcp-lens",
-  "version": "0.1.0-rc.9",
+  "version": "0.1.0-rc.10",
   "description": "Cut MCP context and API cost in DeepSeek Harness with two model-facing tools, lazy discovery, and exact-schema calls",
   "keywords": [
     "deepseek",
@@ -69,8 +69,8 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-subprocess": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+    "@deepseek-ai/dsh-subprocess": "0.1.1-rc.2",
+    "@deepseek-ai/dsh-tools": "0.1.1-rc.2"
   },
   "peerDependenciesMeta": {
     "@deepseek-ai/cordis": {
@@ -89,11 +89,11 @@
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-llm": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-mcp-client": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-subprocess": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-system-prompt": "^0.1.0-rc.6",
-    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-llm": "0.1.1-rc.2",
+    "@deepseek-ai/dsh-mcp-client": "0.1.1-rc.2",
+    "@deepseek-ai/dsh-subprocess": "0.1.1-rc.2",
+    "@deepseek-ai/dsh-system-prompt": "0.1.1-rc.2",
+    "@deepseek-ai/dsh-tools": "0.1.1-rc.2",
     "@types/node": "^26.2.0",
     "tsdown": "^0.22.14",
     "tsx": "^4.23.12",
@@ -107,6 +107,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "bench": "node ./scripts/run-bench.mjs",
-    "verify": "node ./scripts/run-verify.mjs"
+    "verify": "node ./scripts/run-verify.mjs",
+    "verify:dsh-install": "node ./scripts/verify-dsh-install.mjs",
+    "verify:dsh-profile": "node ./scripts/verify-dsh-profile-install.mjs"
   }
 }
