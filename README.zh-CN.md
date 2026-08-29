@@ -30,9 +30,11 @@ MCP Lens 让 DeepSeek Harness 通过两个稳定入口搜索并调用 1,000 个�
 
 ## 安装 rc.10
 
-前置要求：DeepSeek Harness `0.1.1-rc.2`、Node.js `^22.19.0` 或 `>=24.0.0`，并且 `pnpm` 已在 `PATH` 中。`dsh plugin` 会把安装交给 pnpm 执行。请把 Harness 根包或组件包明确固定到 rc.2；目前部分组件的 `latest` 标签仍指向更早的预发布版。
+下面独立命令的前置要求：DeepSeek Harness `0.1.1-rc.2`、Node.js `^22.19.0` 或 `>=24.0.0`，并且 `pnpm` 已在 `PATH` 中。`dsh plugin` 会把安装交给 pnpm 执行。请把 Harness 根包或组件包明确固定到 rc.2。
 
-如果 Profile 必须继续使用 DeepSeek Harness `0.1.0-rc.6`，请把 MCP Lens 固定在 `0.1.0-rc.9`；rc.10 会明确使用当前 rc.2 组件图，不混装两条预发布版本线。
+兼容性说明：DSH Desktop `2.0.4` 内置了未发布到 npm 的 `0.1.2-alpha.1` Runtime。独立 Gate 会验证这套准确的源码／包图、六个非 Site Spec 文件共 84 项测试、组件 Benchmark、通过 Desktop 源码／Runtime CLI 安装 Lens Tarball 与配置组合；它**不能**证明已发布 Desktop UI／Market 的安装路径、Windows 行为或完整交互式模型 Session。
+
+如果 Profile 必须继续使用 DeepSeek Harness `0.1.0-rc.6`，请把 MCP Lens 固定在 `0.1.0-rc.9`；rc.10 只接受已经验证的 rc.2 与 Desktop alpha.1 Host 组件图，不使用开放式预发布版本范围。
 
 最快安装方式：
 
@@ -46,7 +48,7 @@ dsh plugin --profile web add dsh-mcp-lens@next
 dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.10
 ```
 
-rc.10 的发布验证会把 npm Registry Tarball 与审核过的 GitHub 附件逐字节比较，并在全新的 DeepSeek Harness rc.2 Profile 中完成安装。只有两项检查都通过且没有嵌套旧版 DSH 依赖图，发布才算完成。
+rc.10 的发布验证会把 npm Registry Tarball 与审核过的 GitHub 附件逐字节比较，在全新的 DeepSeek Harness rc.2 Profile 中完成安装，并针对 Desktop 2.0.4 固定的 alpha.1 包图运行源码与 Runtime Matrix。只有这些检查都通过且没有嵌套旧版 DSH 依赖图，发布才算完成。
 
 <details>
 <summary>改为校验并安装 GitHub Release 附件</summary>
@@ -216,9 +218,9 @@ Lens 用首次使用时的一次搜索，换取接近恒定的常驻 MCP Schema 
 
 ### rc.10 改了什么
 
-- 精确面向当前 DeepSeek Harness `0.1.1-rc.2` 组件图；rc.6 Profile 继续使用 MCP Lens rc.9。
-- 开发期所有 DSH 组件都精确固定到 `0.1.1-rc.2`，并新增 Packed Install 检查，发现嵌套旧版 DSH 依赖图时直接失败。
-- 不改 MCP Lens Runtime 行为或检索排序。完整源码 Checkout 已通过 `100/100` 个自动化测试、类型检查、构建、Benchmark 重放和全新 Harness rc.2 安装检查。
+- 只声明两个已验证的 Host 组件图：独立 DeepSeek Harness `0.1.1-rc.2`，以及 DSH Desktop 2.0.4 内置的 `0.1.2-alpha.1`；rc.6 Profile 继续使用 MCP Lens rc.9。
+- 默认开发组件仍精确固定到 rc.2；同时拒绝嵌套旧版 DSH 安装，并从 Desktop Release 固定的 241 包 Manifest 执行独立、无密钥的 alpha.1 Gate。
+- 不改 MCP Lens Runtime 行为或检索排序。rc.2 Checkout 已通过 `100/100` 个自动化测试；Desktop alpha.1 Matrix 已通过类型检查、构建、六个非 Site Spec 文件共 `84/84` 项测试、Benchmark 重放、通过 Desktop 源码／Runtime CLI 安装 Lens Tarball 与配置组合。已发布 Desktop UI／Market、Windows 与完整交互式模型 Session 仍是独立验收面。
 
 ### rc.9 改了什么
 

@@ -75,3 +75,38 @@ jobs:
 
       - name: Verify fresh DeepSeek Harness profile
         run: npm run verify:dsh-profile
+
+  verify-desktop-alpha:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout MCP Lens
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.x
+
+      - name: Checkout pinned DSH Desktop source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: anywhere-labs/dsh-desktop
+          ref: d29bf7a965fc68bf09750bc329905ecb17afe48b
+          path: .desktop-alpha-source
+          persist-credentials: false
+
+      - name: Verify DSH Desktop alpha compatibility
+        run: npm run verify:dsh-desktop-alpha -- --desktop-source .desktop-alpha-source --output desktop-alpha-receipt.json
+
+      - name: Retain Desktop alpha compatibility receipt
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: desktop-alpha-compatibility-receipt
+          path: desktop-alpha-receipt.json
+          if-no-files-found: error
+          retention-days: 30

@@ -67,6 +67,8 @@ const lensReleaseCandidate = '0.1.0-rc.10'
 const schemaActionRelease = '0.1.0-rc.7'
 const harnessPilotVersion = '0.1.0-rc.6'
 const harnessCompatibilityVersion = '0.1.1-rc.2'
+const harnessDesktopAlphaVersion = '0.1.2-alpha.1'
+const harnessPeerRange = `${harnessCompatibilityVersion} || ${harnessDesktopAlphaVersion}`
 const retrievalEvidenceRelease = '0.1.0-rc.9'
 const immutableCandidateRevision = 'f21169f921e7ed032a4db5062685afb6f948c2d1'
 const googleSiteVerificationFile = 'googlef86c6ccefaff7c89.html'
@@ -448,7 +450,7 @@ describe('catalog calculator publishing contract', () => {
 
     for (const [name, range] of Object.entries(packageJson.peerDependencies)) {
       if (name.startsWith('@deepseek-ai/dsh-')) {
-        expect(range).toBe(harnessCompatibilityVersion)
+        expect(range).toBe(harnessPeerRange)
         expect(shrinkwrap.packages[''].peerDependencies[name]).toBe(range)
       }
     }

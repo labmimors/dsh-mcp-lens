@@ -4,7 +4,6 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { CallId } from '@deepseek-ai/dsh-llm'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import Tools from '@deepseek-ai/dsh-tools'
 import * as Lens from '../src/index.js'
@@ -70,7 +69,7 @@ async function execute(
 ): Promise<Awaited<ReturnType<typeof ctx.tools.execute>>> {
   callSequence += 1
   return await ctx.tools.execute({
-    callId: CallId(`lens-test-${callSequence}`),
+    callId: `lens-test-${callSequence}` as Parameters<typeof ctx.tools.execute>[0]['callId'],
     name,
     arguments: arguments_,
     signal: new AbortController().signal,

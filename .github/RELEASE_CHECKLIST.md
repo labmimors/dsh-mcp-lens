@@ -11,8 +11,10 @@
 - [ ] Install the tarball into a fresh DSH profile and run `--dump-config`.
 - [ ] Run `npm run verify:dsh-install`; require one current DSH component version and no Lens-nested legacy DSH graph.
 - [ ] Run `npm run verify:dsh-profile -- --output <release-dir>/dsh-mcp-lens-v0.1.0-rc.10-compatibility.json`; require the rc.2 CLI to load the Lens bundle from a fresh isolated profile, then inspect and retain the receipt.
+- [ ] Run `npm run verify:dsh-desktop-alpha -- --desktop-source <clean-dsh-desktop-v2.0.4> --output <release-dir>/dsh-mcp-lens-v0.1.0-rc.10-desktop-alpha-compatibility.json`; retain the receipt and require the pinned 241-package manifest, six non-site spec files / 84 tests, benchmark, public-metadata tarball install, zero Lens-nested DSH packages, and one composed Lens bundle.
+- [ ] Smoke the reviewed tarball with the released macOS Desktop 2.0.4 bundled CLI. Treat Desktop UI/Market, Windows, and a complete interactive model session as unverified until separately exercised; do not generalize the source/runtime gate to those surfaces.
 - [ ] Confirm README install URLs, version, Node/DSH versions and both language documents.
-- [ ] Create an immutable prerelease tag and attach the reviewed tarball, benchmark artifact and compatibility receipt.
+- [ ] Create an immutable prerelease tag and attach the reviewed tarball, benchmark artifact, rc.2 compatibility receipt, and Desktop alpha compatibility receipt.
 - [ ] Publish that exact reviewed tarball with `npm publish <tarball> --tag next`; do not move `latest` without a separate decision.
 - [ ] Read back npm dist-tags and metadata, download the registry tarball, and require its SHA-256 to match the GitHub Release asset byte-for-byte.
 - [ ] Install `dsh-mcp-lens@next` in another fresh rc.2 profile and repeat `--dump-config` before declaring the release complete.

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
 const harnessVersion = '0.1.1-rc.2'
+const supportedHarnessPeerRange = '0.1.1-rc.2 || 0.1.2-alpha.1'
 const pnpmVersion = '10.20.0'
 const commandTimeoutMs = 180_000
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
@@ -20,8 +21,8 @@ if (outputFlagIndex !== -1 && (!outputPath || outputPath.startsWith('--'))) {
 }
 
 for (const packageName of ['@deepseek-ai/dsh-subprocess', '@deepseek-ai/dsh-tools']) {
-  if (manifest.peerDependencies[packageName] !== harnessVersion) {
-    throw new Error(`DeepSeek Harness profile verification must target ${packageName}@${harnessVersion}`)
+  if (manifest.peerDependencies[packageName] !== supportedHarnessPeerRange) {
+    throw new Error(`DeepSeek Harness peer range must stay at ${supportedHarnessPeerRange}: ${packageName}`)
   }
 }
 

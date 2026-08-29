@@ -30,9 +30,11 @@ Use MCP Lens if you have dozens to thousands of MCP tools, multiple servers, or 
 
 ## Install rc.10
 
-Prerequisites: DeepSeek Harness `0.1.1-rc.2`, Node.js `^22.19.0` or `>=24.0.0`, and `pnpm` on `PATH`. The `dsh plugin` command delegates installation to pnpm. Pin the root Harness package or its component packages explicitly to rc.2; several component `latest` tags still resolve to an older prerelease.
+Prerequisites for the standalone command below: DeepSeek Harness `0.1.1-rc.2`, Node.js `^22.19.0` or `>=24.0.0`, and `pnpm` on `PATH`. The `dsh plugin` command delegates installation to pnpm. Pin the Harness root package or its component packages explicitly to rc.2.
 
-If your profile must remain on DeepSeek Harness `0.1.0-rc.6`, keep MCP Lens pinned to `0.1.0-rc.9`; rc.10 deliberately targets the current rc.2 component graph instead of mixing prerelease lines.
+Compatibility note: DSH Desktop `2.0.4` vendors a non-npm `0.1.2-alpha.1` runtime. A separate gate verifies that exact source/package graph, six non-site spec files / 84 tests, the component benchmark, a Lens tarball install through the Desktop source/runtime CLI, and config composition. It does **not** establish the released Desktop UI/Market installation path, Windows behavior, or a complete interactive model session.
+
+If your profile must remain on DeepSeek Harness `0.1.0-rc.6`, keep MCP Lens pinned to `0.1.0-rc.9`; rc.10 accepts only the tested rc.2 and Desktop alpha.1 host graphs instead of an open-ended prerelease range.
 
 Fastest install:
 
@@ -46,7 +48,7 @@ For a reproducible install, pin the reviewed version:
 dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.10
 ```
 
-Release verification for rc.10 compares the npm registry tarball byte-for-byte with the reviewed GitHub asset and installs it in a fresh DeepSeek Harness rc.2 profile. The release is not complete until both checks pass without a nested legacy DSH dependency graph.
+Release verification for rc.10 compares the npm registry tarball byte-for-byte with the reviewed GitHub asset, installs it in a fresh DeepSeek Harness rc.2 profile, and runs the source/runtime matrix against Desktop 2.0.4's pinned alpha.1 package graph. The release is not complete until those checks pass without a nested legacy DSH dependency graph.
 
 <details>
 <summary>Verify and install the GitHub Release tarball instead</summary>
@@ -216,9 +218,9 @@ Lens trades a search step on first use for a nearly constant standing MCP schema
 
 ### What rc.10 changes
 
-- Targets the current DeepSeek Harness `0.1.1-rc.2` component graph exactly; rc.6 profiles remain on MCP Lens rc.9.
-- Keeps every development-time DSH component on exact `0.1.1-rc.2` versions and adds a packed-install check that rejects a nested legacy DSH graph.
-- Changes no MCP Lens runtime behavior or retrieval ranking. The full source checkout passes `100/100` automated tests, typechecking, build, benchmark reproduction, and the fresh Harness rc.2 install check.
+- Declares only the two tested host graphs: standalone DeepSeek Harness `0.1.1-rc.2` and DSH Desktop 2.0.4's vendored `0.1.2-alpha.1`; rc.6 profiles remain on MCP Lens rc.9.
+- Keeps the default development graph pinned to exact rc.2 packages, rejects nested legacy DSH installs, and adds a separate keyless Desktop alpha.1 gate from the release's pinned 241-package manifest.
+- Changes no MCP Lens runtime behavior or retrieval ranking. The rc.2 checkout passes `100/100` automated tests; the Desktop alpha.1 matrix passes typechecking, build, six non-site spec files / `84/84` tests, benchmark reproduction, a Lens tarball install through the Desktop source/runtime CLI, and config composition. Released Desktop UI/Market, Windows, and a complete interactive model session remain separate acceptance surfaces.
 
 ### What rc.9 changed
 
