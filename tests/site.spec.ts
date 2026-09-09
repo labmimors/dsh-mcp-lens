@@ -66,9 +66,9 @@ const repositoryImageUrl = 'https://repository-images.githubusercontent.com/1334
 const lensReleaseCandidate = '0.1.0-rc.10'
 const schemaActionRelease = '0.1.0-rc.7'
 const harnessPilotVersion = '0.1.0-rc.6'
-const harnessCompatibilityVersion = '0.1.1-rc.2'
+const harnessCompatibilityVersion = '0.1.2-rc.1'
 const harnessDesktopAlphaVersion = '0.1.2-alpha.1'
-const harnessPeerRange = `${harnessCompatibilityVersion} || ${harnessDesktopAlphaVersion}`
+const harnessPeerRange = `0.1.1-rc.2 || ${harnessDesktopAlphaVersion} || ${harnessCompatibilityVersion} || 0.1.5-alpha.1`
 const retrievalEvidenceRelease = '0.1.0-rc.9'
 const immutableCandidateRevision = 'f21169f921e7ed032a4db5062685afb6f948c2d1'
 const googleSiteVerificationFile = 'googlef86c6ccefaff7c89.html'
@@ -462,20 +462,15 @@ describe('catalog calculator publishing contract', () => {
     }
 
     for (const readme of [englishReadme, chineseReadme]) {
-      expect(readme).toContain(`/releases/download/v${lensReleaseCandidate}/dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
-      expect(readme).toContain('curl -fL --retry 3')
       expect(readme).toContain(`shasum -a 256 dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
       expect(readme).toContain('SHA-256')
       expect(readme).not.toContain('a930b5166ffe1cf1de4032d69289de935c444c94cf01b2a5ca5ad58949b91fa0')
       expect(readme).toContain(`dsh plugin --profile web add ./dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
       expect(readme).not.toContain(`dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v${lensReleaseCandidate}`)
       expect(readme).toContain(`labmimors/dsh-mcp-lens@v${schemaActionRelease}`)
-      expect(readme).toContain(`github:labmimors/dsh-mcp-lens#v${lensReleaseCandidate}`)
-      expect(readme).toContain(`/releases/tag/v${lensReleaseCandidate}`)
       expect(readme).toContain(`labmimors/dsh-mcp-lens@${immutableCandidateRevision}`)
       expect(readme).toContain(`\`${immutableCandidateRevision}\``)
       expect(readme).toContain('304/304')
-      expect(readme).toContain('100/100')
       expect(readme).toMatch(/[Ff]rozen search index|冻结搜索索引/)
       expect(readme).toMatch(/full source checkout|完整源码 Checkout/)
       expect(readme).toMatch(/compact prebuilt runtime package|精简的预编译 Runtime 包/)
@@ -488,16 +483,19 @@ describe('catalog calculator publishing contract', () => {
       expect(readme).not.toContain('47285d39bf267d71d196ffaec7ca58a380204566')
     }
 
-    expect(englishReadme).toContain('The rc.10 Release page is the source for the reviewed `.tgz` asset')
-    expect(englishReadme).toContain('<a id="install"></a>')
-    expect(englishReadme).not.toContain('become valid after its Release page')
-    expect(englishReadme).not.toContain('After the rc.10 tag is published')
-    expect(englishReadme).not.toContain('the link resolves after publication')
-    expect(chineseReadme).toContain('rc.10 Release 页面是审核版 `.tgz` 附件')
-    expect(chineseReadme).toContain('<a id="install"></a>')
-    expect(chineseReadme).not.toContain('下面的命令为 rc.9 预先准备')
-    expect(chineseReadme).not.toContain('rc.10 Tag 发布后')
-    expect(chineseReadme).not.toContain('发布后链接才会生效')
+    // An unpublished candidate must have a local install path, never a dead
+    // registry/tag command presented as an available release.
+    for (const readme of [englishReadme, chineseReadme]) {
+      expect(readme).toContain('<a id="install"></a>')
+      expect(readme).toContain('npm pack --ignore-scripts')
+      expect(readme).toContain('dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.9')
+      expect(readme).not.toContain(`dsh plugin --profile web add dsh-mcp-lens@${lensReleaseCandidate}`)
+      expect(readme).not.toContain('dsh plugin --profile web add dsh-mcp-lens@next')
+      expect(readme).not.toContain(`/releases/download/v${lensReleaseCandidate}/`)
+      expect(readme).not.toContain(`github:labmimors/dsh-mcp-lens#v${lensReleaseCandidate}`)
+    }
+    expect(englishReadme).toContain('rc.10 is an unreleased candidate')
+    expect(chineseReadme).toContain('rc.10 尚未发布')
 
     expect(englishPilot).toContain(`DeepSeek Harness: \`${harnessPilotVersion}\``)
     expect(chinesePilot).toContain(`DeepSeek Harness：\`${harnessPilotVersion}\``)

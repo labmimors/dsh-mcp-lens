@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-[Website](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [Local schema calculator](https://labmimors.github.io/dsh-mcp-lens/) · [Install rc.10](#install)
+[Website](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [Local schema calculator](https://labmimors.github.io/dsh-mcp-lens/) · [Install](#install)
 
 [![verify](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml/badge.svg)](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml)
 [![release](https://img.shields.io/github/v/release/labmimors/dsh-mcp-lens?include_prereleases)](https://github.com/labmimors/dsh-mcp-lens/releases)
@@ -28,44 +28,31 @@ Use MCP Lens if you have dozens to thousands of MCP tools, multiple servers, or 
 
 <a id="install"></a>
 
-## Install rc.10
+## Install
 
-Prerequisites for the standalone command below: DeepSeek Harness `0.1.1-rc.2`, Node.js `^22.19.0` or `>=24.0.0`, and `pnpm` on `PATH`. The `dsh plugin` command delegates installation to pnpm. Pin the Harness root package or its component packages explicitly to rc.2.
+**Release status checked September 9, 2026:** npm `latest` and `next` still resolve to `0.1.0-rc.9`, for Harness `0.1.0-rc.6`. **rc.10 is an unreleased candidate.** Its npm version and GitHub Release asset are not available yet.
 
-Compatibility note: DSH Desktop `2.0.4` vendors a non-npm `0.1.2-alpha.1` runtime. A separate gate verifies that exact source/package graph, six non-site spec files / 84 tests, the component benchmark, a Lens tarball install through the Desktop source/runtime CLI, and config composition. It does **not** establish the released Desktop UI/Market installation path, Windows behavior, or a complete interactive model session.
-
-If your profile must remain on DeepSeek Harness `0.1.0-rc.6`, keep MCP Lens pinned to `0.1.0-rc.9`; rc.10 accepts only the tested rc.2 and Desktop alpha.1 host graphs instead of an open-ended prerelease range.
-
-Fastest install:
+For current Harness, build the rc.10 candidate from this source checkout. Use Node.js `^22.19.0` or `>=24.0.0`, and put `pnpm` on `PATH`; `dsh plugin` delegates installation to pnpm. Pin the Harness CLI to `0.1.2-rc.1` (the npm default verified on the date above).
 
 ```sh
-dsh plugin --profile web add dsh-mcp-lens@next
-```
-
-For a reproducible install, pin the reviewed version:
-
-```sh
-dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.10
-```
-
-Release verification for rc.10 compares the npm registry tarball byte-for-byte with the reviewed GitHub asset, installs it in a fresh DeepSeek Harness rc.2 profile, and runs the source/runtime matrix against Desktop 2.0.4's pinned alpha.1 package graph. The release is not complete until those checks pass without a nested legacy DSH dependency graph.
-
-<details>
-<summary>Verify and install the GitHub Release tarball instead</summary>
-
-The rc.10 Release page is the source for the reviewed `.tgz` asset and its SHA-256 digest. Download the file, compare its digest with the value shown for that exact Release asset, and only then install the local file into your Harness profile. Passing a redirected GitHub asset URL directly to pnpm can fail with `ERR_PNPM_MISSING_TARBALL_INTEGRITY` on some pnpm versions.
-
-```sh
-curl -fL --retry 3 -o dsh-mcp-lens-0.1.0-rc.10.tgz \
-  https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.10/dsh-mcp-lens-0.1.0-rc.10.tgz
+npm ci --ignore-scripts
+npm run verify
+npm pack --ignore-scripts
 shasum -a 256 dsh-mcp-lens-0.1.0-rc.10.tgz
-# Compare the output with the SHA-256 shown for the .tgz on the rc.10 Release page.
 dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.10.tgz
 ```
 
-On Windows, download the same asset from the [rc.10 Release page](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10), compare `Get-FileHash -Algorithm SHA256` with the digest shown for that asset, and pass its local path to `dsh plugin add` only if they match.
+Record the local SHA-256 with your build; it is a local candidate, not a published release receipt. On Windows, use `Get-FileHash -Algorithm SHA256` for the digest. To check installation before touching a working profile, run `npm run verify:dsh-profile`; it creates and removes its own isolated `DSH_HOME`.
 
-</details>
+The compatibility matrix pins complete npm host graphs at `0.1.1-rc.2`, `0.1.2-rc.1`, and `0.1.5-alpha.1`. The default development graph is `0.1.2-rc.1`. The older Desktop `2.0.4` / `0.1.2-alpha.1` source/runtime gate remains separate. These gates cover source tests, the packed plugin, and CLI profile composition; they do not establish released Desktop UI/Market installation or a complete interactive model session. See [compatibility verification](CONTRIBUTING.md#harness-compatibility).
+
+For an existing Harness `0.1.0-rc.6` profile, install the published version explicitly:
+
+```sh
+dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.9
+```
+
+Before rc.10 is published, follow the [release checklist](.github/RELEASE_CHECKLIST.md), including reviewed tarball SHA-256, version-specific profile receipts, and registry read-back. Do not use `@next` to obtain this candidate.
 
 To make the plugin useful, continue with [Connect your first MCP server](#connect-your-first-mcp-server); its copy-paste block adds both a server and the exact tools you want to allow. Then validate and start the profile:
 
@@ -108,27 +95,9 @@ For an immutable production reference, pin the reviewed rc.7 commit: `f21169f921
 
 In the live pilot, MCP Lens and the official direct client both completed **3/3 tasks**. Lens used one extra search step and more output tokens, so it is designed for large, multi-server, or long-tail catalogs, not a handful of tools used on every turn. See the [full pilot report](docs/LIVE_DEEPSEEK_PILOT.md).
 
-The Release asset is a prebuilt tarball, so it needs no dependency build permission. The MCP documentation server used below requires no additional API key; Harness still needs your configured model provider.
+The locally built package is a prebuilt tarball, so it needs no dependency build permission. The MCP documentation server used below requires no additional API key; Harness still needs your configured model provider.
 
-<details>
-<summary>Install reviewed source instead</summary>
 
-To install the reviewed rc.10 source tag instead:
-
-```sh
-dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.10
-```
-
-Git installs fetch source and run `prepare`. With pnpm 10+, add this exact package key to `$DSH_HOME/profiles/web/pnpm-workspace.yaml` (default `~/.dsh/profiles/web/pnpm-workspace.yaml`), then rerun the command:
-
-```yaml
-allowBuilds:
-  dsh-mcp-lens: true
-```
-
-Review the source and pin a tag or commit SHA before granting build permission.
-
-</details>
 
 ## Connect your first MCP server
 
@@ -212,15 +181,18 @@ Patterns match the exact `server/tool` identity, support literals plus `*`, and 
 | Official `@deepseek-ai/dsh-mcp-client` | You have a few stable tools that are used on most turns and want the simplest direct path. |
 | MCP Lens | You have dozens to thousands of tools, several MCP servers, long-tail capabilities, or repeated context/cost pressure. |
 
+Source checks of the native MCP client in [Harness 0.1.5-alpha.1](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.5-alpha.1/packages/mcp/mcp-client/src/tools.ts) still show registration of each remote tool. Lens retains its small search/call surface; the current compatibility work does not establish new model-quality or cost gains.
+
 Lens trades a search step on first use for a nearly constant standing MCP schema surface. The larger and less frequently used your catalog is, the stronger that trade becomes.
 
 **Speed:** there is no universal latency win to claim. The first uncached use adds search and connection work; smaller requests may offset that cost on large catalogs, so measure your own workload.
 
 ### What rc.10 changes
 
-- Declares only the two tested host graphs: standalone DeepSeek Harness `0.1.1-rc.2` and DSH Desktop 2.0.4's vendored `0.1.2-alpha.1`; rc.6 profiles remain on MCP Lens rc.9.
-- Keeps the default development graph pinned to exact rc.2 packages, rejects nested legacy DSH installs, and adds a separate keyless Desktop alpha.1 gate from the release's pinned 241-package manifest.
-- Changes no MCP Lens runtime behavior or retrieval ranking. The rc.2 checkout passes `100/100` automated tests; the Desktop alpha.1 matrix passes typechecking, build, six non-site spec files / `84/84` tests, benchmark reproduction, a Lens tarball install through the Desktop source/runtime CLI, and config composition. Released Desktop UI/Market, Windows, and a complete interactive model session remain separate acceptance surfaces.
+- Supports exact Harness `0.1.1-rc.2`, `0.1.2-rc.1`, and `0.1.5-alpha.1` registry graphs, plus the separately verified historical Desktop `0.1.2-alpha.1` graph. rc.6 profiles stay on Lens rc.9.
+- Derives JSON output types from the public tool-output contract after Harness removed the `JsonValue` re-export. The default development dependencies move together to `0.1.2-rc.1`.
+- Verifies the packed plugin's real search/call path, strict profile installation, and absence of mixed or Lens-nested Harness packages. Exact-version gates run in CI; the two-tool interface and retrieval ranking remain unchanged.
+- Refreshes vulnerable transitive dependencies and distinguishes this local candidate from published rc.9 installation commands.
 
 ### What rc.9 changed
 
@@ -359,7 +331,7 @@ See the shipped [`cordis.patch.yml`](cordis.patch.yml) for the canonical default
 - Security reports: read [`SECURITY.md`](SECURITY.md); do not disclose an unpatched exploit in a public issue.
 - Contributions: read [`CONTRIBUTING.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/CONTRIBUTING.md).
 - Search quality: [submit a sanitized search miss](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml) and help turn it into a regression fixture.
-- Release candidate: [`v0.1.0-rc.10`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10).
+- Published release: [`v0.1.0-rc.9`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9); this checkout prepares rc.10.
 
 DeepSeek Harness currently discovers community plugins through public GitHub repositories with the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic and installs them from GitHub, tarballs, or npm packages. See the official [plugin publishing guide](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md).
 

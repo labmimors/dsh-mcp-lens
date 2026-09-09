@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { basename, delimiter, dirname, join, resolve, sep } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { resolveHarnessCompatibility } from './harness-compatibility.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const desktopVersion = '2.0.4'
@@ -11,7 +12,6 @@ const desktopTag = `v${desktopVersion}`
 const desktopCommit = 'd29bf7a965fc68bf09750bc329905ecb17afe48b'
 const harnessVersion = '0.1.2-alpha.1'
 const harnessCommit = 'cd5ef8148158c3a752a658978873241fdf8e2bbc'
-const supportedHarnessPeerRange = `0.1.1-rc.2 || ${harnessVersion}`
 const expectedRuntimePackageCount = 241
 const commandTimeoutMs = 600_000
 const corepackCommand = process.platform === 'win32' ? 'corepack.cmd' : 'corepack'
@@ -245,11 +245,7 @@ async function prepareWorkspace(desktopRoot) {
   const candidateManifestPath = join(candidateRoot, 'package.json')
   const publicManifestText = await readFile(candidateManifestPath, 'utf8')
   const candidateManifest = JSON.parse(publicManifestText)
-  for (const packageName of ['@deepseek-ai/dsh-subprocess', '@deepseek-ai/dsh-tools']) {
-    if (candidateManifest.peerDependencies[packageName] !== supportedHarnessPeerRange) {
-      throw new Error(`Candidate must declare the reviewed host range for ${packageName}: ${supportedHarnessPeerRange}`)
-    }
-  }
+  resolveHarnessCompatibility(candidateManifest, ['--harness-version', harnessVersion])
   for (const packageName of alphaDevelopmentPackages) {
     candidateManifest.devDependencies[packageName] = harnessVersion
   }
@@ -444,7 +440,7 @@ try {
       checkoutCommit: candidateCheckoutCommit,
       sourceTree: candidateSourceTree,
       trackedSourceClean: true,
-      peerRange: supportedHarnessPeerRange,
+      peerRange: candidateManifest.peerDependencies['@deepseek-ai/dsh-tools'],
       sourceDigest: benchmark.provenance?.candidate?.sourceDigest,
       tarballSha256: profile.tarballSha256,
     },

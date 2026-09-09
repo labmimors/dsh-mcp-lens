@@ -1,30 +1,23 @@
 import { createHash } from 'node:crypto'
-import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, delimiter, dirname, join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { resolveHarnessCompatibility } from './harness-compatibility.mjs'
+import { assertNoProfileHarnessPackages, collectDeepSeekHarnessPackages } from './harness-package-graph.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
-const harnessVersion = '0.1.1-rc.2'
-const supportedHarnessPeerRange = '0.1.1-rc.2 || 0.1.2-alpha.1'
+const { harnessVersion, versionSelection, outputPath } = resolveHarnessCompatibility(
+  manifest,
+  process.argv.slice(2),
+  { allowOutput: true },
+)
 const pnpmVersion = '10.20.0'
 const commandTimeoutMs = 180_000
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 const corepackCommand = process.platform === 'win32' ? 'corepack.cmd' : 'corepack'
-const outputFlagIndex = process.argv.indexOf('--output')
-const outputPath = outputFlagIndex === -1 ? undefined : process.argv[outputFlagIndex + 1]
-
-if (outputFlagIndex !== -1 && (!outputPath || outputPath.startsWith('--'))) {
-  throw new Error('Usage: npm run verify:dsh-profile -- --output <receipt.json>')
-}
-
-for (const packageName of ['@deepseek-ai/dsh-subprocess', '@deepseek-ai/dsh-tools']) {
-  if (manifest.peerDependencies[packageName] !== supportedHarnessPeerRange) {
-    throw new Error(`DeepSeek Harness peer range must stay at ${supportedHarnessPeerRange}: ${packageName}`)
-  }
-}
 
 try {
   await access(join(root, 'lib', 'index.js'))
@@ -51,28 +44,6 @@ function run(command, args, cwd, options = {}) {
   return result.stdout ?? ''
 }
 
-async function collectDeepSeekHarnessPackages(directory, found = []) {
-  const entries = await readdir(directory, { withFileTypes: true })
-  for (const entry of entries) {
-    if (!entry.isDirectory() || entry.isSymbolicLink() || entry.name === '.bin') continue
-    const child = join(directory, entry.name)
-    if (entry.name === '@deepseek-ai') {
-      for (const scopedEntry of await readdir(child, { withFileTypes: true })) {
-        if (!scopedEntry.isDirectory() || !/^dsh(?:-|$)/.test(scopedEntry.name)) continue
-        const packageRoot = join(child, scopedEntry.name)
-        const packageManifest = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'))
-        found.push({
-          name: packageManifest.name,
-          version: packageManifest.version,
-          path: packageRoot,
-        })
-      }
-    }
-    await collectDeepSeekHarnessPackages(child, found)
-  }
-  return found
-}
-
 async function writePnpmShim(directory) {
   await mkdir(directory)
   if (process.platform === 'win32') {
@@ -96,7 +67,7 @@ try {
   )
   const packResult = JSON.parse(packOutput)
   const filename = packResult[0]?.filename
-  if (!filename) throw new Error('npm pack did not report a tarball filename')
+  if (packResult.length !== 1 || !filename) throw new Error('npm pack must report exactly one tarball filename')
   const tarballPath = join(temporaryRoot, basename(filename))
   const tarballSha256 = createHash('sha256').update(await readFile(tarballPath)).digest('hex')
 
@@ -109,7 +80,7 @@ try {
   }, null, 2)}\n`)
   run(
     corepackCommand,
-    [`pnpm@${pnpmVersion}`, 'add', '--save-exact', '--ignore-scripts', `@deepseek-ai/dsh@${harnessVersion}`],
+    [`pnpm@${pnpmVersion}`, 'add', '--save-exact', '--strict-peer-dependencies', '--ignore-scripts', `@deepseek-ai/dsh@${harnessVersion}`],
     harnessRoot,
     { capture: true },
   )
@@ -134,7 +105,7 @@ try {
 
   run(
     dshCommand,
-    ['plugin', '--profile', 'smoke', 'add', tarballPath],
+    ['plugin', '--profile', 'smoke', 'add', '--strict-peer-dependencies', tarballPath],
     harnessRoot,
     { capture: true, env: commandEnvironment },
   )
@@ -144,15 +115,17 @@ try {
     harnessRoot,
     { capture: true, env: commandEnvironment },
   )
-  if (!dumpedConfig.includes('# == dsh-mcp-lens')
-      || !dumpedConfig.includes('- id: mcp-lens')
+  const bundleRows = dumpedConfig.match(/^# == dsh-mcp-lens\s*$/gm) ?? []
+  const pluginRows = dumpedConfig.match(/^\s*- id: mcp-lens\s*$/gm) ?? []
+  if (bundleRows.length !== 1 || pluginRows.length !== 1
       || !dumpedConfig.includes('name: dsh-mcp-lens')) {
-    throw new Error('Fresh DeepSeek Harness profile did not load the MCP Lens bundle')
+    throw new Error('Fresh DeepSeek Harness profile did not compose exactly one MCP Lens bundle')
   }
 
   const profileModules = join(dshHome, 'profiles', 'smoke', 'node_modules')
+  const profileHarnessPackages = await collectDeepSeekHarnessPackages(profileModules)
+  assertNoProfileHarnessPackages(profileHarnessPackages)
   const installed = await collectDeepSeekHarnessPackages(join(harnessRoot, 'node_modules'))
-  installed.push(...await collectDeepSeekHarnessPackages(profileModules))
   const mismatches = installed.filter(pkg => pkg.version !== harnessVersion)
   if (mismatches.length > 0) {
     throw new Error(`Mixed DeepSeek Harness versions detected:\n${mismatches
@@ -179,6 +152,7 @@ try {
     await mkdir(dirname(receiptPath), { recursive: true })
     await writeFile(receiptPath, `${JSON.stringify({
       schemaVersion: 1,
+      verifiedAt: new Date().toISOString(),
       candidate: {
         name: manifest.name,
         version: manifest.version,
@@ -187,6 +161,11 @@ try {
       harness: {
         requestedVersion: harnessVersion,
         reportedVersion,
+        source: {
+          type: 'npm-exact',
+          specifier: `@deepseek-ai/dsh@${harnessVersion}`,
+          selectedBy: versionSelection,
+        },
         pnpmVersion,
         packageInstances: installed.length,
         packages: packageSummary,
@@ -194,6 +173,9 @@ try {
       profile: {
         name: 'smoke',
         bundleLoaded: true,
+        bundleInstances: bundleRows.length,
+        strictPeerDependencies: true,
+        nestedHarnessPackageInstances: profileHarnessPackages.length,
         dumpConfigSha256: createHash('sha256').update(dumpedConfig).digest('hex'),
       },
       runtime: {

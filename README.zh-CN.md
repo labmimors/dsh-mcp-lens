@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-[官网](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [本地 Schema 计算器](https://labmimors.github.io/dsh-mcp-lens/) · [安装 rc.10](#install)
+[官网](https://deepseek-harness-mcp-lens.charmingkla.chatgpt.site) · [本地 Schema 计算器](https://labmimors.github.io/dsh-mcp-lens/) · [安装](#install)
 
 [![verify](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml/badge.svg)](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml)
 [![release](https://img.shields.io/github/v/release/labmimors/dsh-mcp-lens?include_prereleases)](https://github.com/labmimors/dsh-mcp-lens/releases)
@@ -28,44 +28,31 @@ MCP Lens 让 DeepSeek Harness 通过两个稳定入口搜索并调用 1,000 个�
 
 <a id="install"></a>
 
-## 安装 rc.10
+## 安装
 
-下面独立命令的前置要求：DeepSeek Harness `0.1.1-rc.2`、Node.js `^22.19.0` 或 `>=24.0.0`，并且 `pnpm` 已在 `PATH` 中。`dsh plugin` 会把安装交给 pnpm 执行。请把 Harness 根包或组件包明确固定到 rc.2。
+**2026 年 9 月 9 日核验的发布状态：**npm `latest` 和 `next` 仍指向适用于 Harness `0.1.0-rc.6` 的 `0.1.0-rc.9`。**rc.10 尚未发布，是本地候选版本。**目前没有 rc.10 npm 版本或 GitHub Release 附件。
 
-兼容性说明：DSH Desktop `2.0.4` 内置了未发布到 npm 的 `0.1.2-alpha.1` Runtime。独立 Gate 会验证这套准确的源码／包图、六个非 Site Spec 文件共 84 项测试、组件 Benchmark、通过 Desktop 源码／Runtime CLI 安装 Lens Tarball 与配置组合；它**不能**证明已发布 Desktop UI／Market 的安装路径、Windows 行为或完整交互式模型 Session。
-
-如果 Profile 必须继续使用 DeepSeek Harness `0.1.0-rc.6`，请把 MCP Lens 固定在 `0.1.0-rc.9`；rc.10 只接受已经验证的 rc.2 与 Desktop alpha.1 Host 组件图，不使用开放式预发布版本范围。
-
-最快安装方式：
+使用当前 Harness 时，请从这份源码 Checkout 构建 rc.10 候选版。需要 Node.js `^22.19.0` 或 `>=24.0.0`，并把 `pnpm` 放到 `PATH`；`dsh plugin` 会委托 pnpm 安装。请将 Harness CLI 固定为 `0.1.2-rc.1`（上述日期核验的 npm 默认版）。
 
 ```sh
-dsh plugin --profile web add dsh-mcp-lens@next
-```
-
-需要可复现安装时，固定到已审核版本：
-
-```sh
-dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.10
-```
-
-rc.10 的发布验证会把 npm Registry Tarball 与审核过的 GitHub 附件逐字节比较，在全新的 DeepSeek Harness rc.2 Profile 中完成安装，并针对 Desktop 2.0.4 固定的 alpha.1 包图运行源码与 Runtime Matrix。只有这些检查都通过且没有嵌套旧版 DSH 依赖图，发布才算完成。
-
-<details>
-<summary>改为校验并安装 GitHub Release 附件</summary>
-
-rc.10 Release 页面是审核版 `.tgz` 附件与 SHA-256 的来源。先下载文件，把本地摘要与该附件显示的摘要逐字比较，确认一致后再把本地文件安装到 Harness Profile。某些 pnpm 版本直接接收 GitHub 重定向后的附件 URL 时会报 `ERR_PNPM_MISSING_TARBALL_INTEGRITY`。
-
-```sh
-curl -fL --retry 3 -o dsh-mcp-lens-0.1.0-rc.10.tgz \
-  https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.10/dsh-mcp-lens-0.1.0-rc.10.tgz
+npm ci --ignore-scripts
+npm run verify
+npm pack --ignore-scripts
 shasum -a 256 dsh-mcp-lens-0.1.0-rc.10.tgz
-# 与 rc.10 Release 页面中 .tgz 附件显示的 SHA-256 逐字比较。
 dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.10.tgz
 ```
 
-Windows 用户可从 [rc.10 Release 页面](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10)下载同一附件，把 `Get-FileHash -Algorithm SHA256` 的结果与附件显示的摘要逐字比较；只有一致时才把本地路径交给 `dsh plugin add`。
+请把本地 SHA-256 与构建记录一起保存；它是本地候选包，不是已发布版本的凭据。Windows 可用 `Get-FileHash -Algorithm SHA256` 计算摘要。若要先验证安装，请运行 `npm run verify:dsh-profile`；它会创建并清理独立的 `DSH_HOME`，不改现有 Profile。
 
-</details>
+兼容性矩阵精确固定三套 npm Host 组件图：`0.1.1-rc.2`、`0.1.2-rc.1`、`0.1.5-alpha.1`。默认开发组件固定到 `0.1.2-rc.1`。旧版 Desktop `2.0.4` / `0.1.2-alpha.1` 源码与 Runtime Gate 单独保留。这些 Gate 覆盖源码测试、打包插件与 CLI Profile 配置组合，不代表已发布 Desktop UI／Market 安装或完整交互式模型 Session 已验证。见[兼容性验证](CONTRIBUTING.md#harness-compatibility)。
+
+已有 Harness `0.1.0-rc.6` Profile 请明确安装已发布版本：
+
+```sh
+dsh plugin --profile web add dsh-mcp-lens@0.1.0-rc.9
+```
+
+发布 rc.10 前须完成[发布清单](.github/RELEASE_CHECKLIST.md)，包括审核包 SHA-256、各版本 Profile 凭据与 npm Registry 回读。目前不要用 `@next` 获取本候选版。
 
 要真正开始使用，请继续完成[连接第一个 MCP Server](#连接第一个-mcp-server)；其中的复制粘贴配置会同时添加 Server 和你要放行的准确工具。然后验证并启动 Profile：
 
@@ -108,27 +95,9 @@ dsh --profile web
 
 在 DeepSeek 实测中，MCP Lens 和官方直接客户端都完成了 **3/3 项任务**。Lens 会多一次搜索，并在这组样本中产生更多输出 Token，因此它针对的是大型、多 Server、长尾工具库，而不是每轮都会用到的几个固定工具。完整数据见[中文实测报告](docs/LIVE_DEEPSEEK_PILOT.zh-CN.md)。
 
-Release 附件是预编译 tarball，不需要依赖构建权限。下面使用的 MCP 文档 Server 不需要额外 API Key；Harness 仍然需要你已经配置好的模型 Provider。
+本地构建包是预编译 tarball，不需要依赖构建权限。下面使用的 MCP 文档 Server 不需要额外 API Key；Harness 仍然需要你已经配置好的模型 Provider。
 
-<details>
-<summary>改为安装已审核的源码</summary>
 
-如需改装已审核的 rc.10 源码 Tag：
-
-```sh
-dsh plugin --profile web add github:labmimors/dsh-mcp-lens#v0.1.0-rc.10
-```
-
-Git 安装会下载源码并运行 `prepare`。使用 pnpm 10+ 时，请在 `$DSH_HOME/profiles/web/pnpm-workspace.yaml`（默认 `~/.dsh/profiles/web/pnpm-workspace.yaml`）中加入准确包名，然后重新安装：
-
-```yaml
-allowBuilds:
-  dsh-mcp-lens: true
-```
-
-授予构建权限前请先审查源码，并固定 Tag 或 Commit SHA。
-
-</details>
 
 ## 连接第一个 MCP Server
 
@@ -212,15 +181,18 @@ MCP Lens 会在内部完成两段式路由：
 | 官方 `@deepseek-ai/dsh-mcp-client` | 只有几个稳定工具，而且大多数轮次都会使用；你希望路径最直接。 |
 | MCP Lens | 有几十到几千个工具、多个 MCP Server、很多长尾能力，或上下文与 API 成本已经成为问题。 |
 
+核对 [Harness 0.1.5-alpha.1 的原生 MCP Client 源码](https://github.com/deepseek-ai/deepseek-harness/blob/dsh-v0.1.5-alpha.1/packages/mcp/mcp-client/src/tools.ts)，它仍逐项注册远程工具。Lens 保留小型搜索／调用入口；本轮兼容性验证不代表新增模型质量或成本收益。
+
 Lens 用首次使用时的一次搜索，换取接近恒定的常驻 MCP Schema 面。工具越多、单个工具使用频率越低，这个交换越划算。
 
 **速度：**目前没有可以普遍承诺的延迟提升。首次未缓存使用会增加搜索和连接工作；大型工具库的较小请求可能抵消这部分开销，请以自己的工作负载实测。
 
 ### rc.10 改了什么
 
-- 只声明两个已验证的 Host 组件图：独立 DeepSeek Harness `0.1.1-rc.2`，以及 DSH Desktop 2.0.4 内置的 `0.1.2-alpha.1`；rc.6 Profile 继续使用 MCP Lens rc.9。
-- 默认开发组件仍精确固定到 rc.2；同时拒绝嵌套旧版 DSH 安装，并从 Desktop Release 固定的 241 包 Manifest 执行独立、无密钥的 alpha.1 Gate。
-- 不改 MCP Lens Runtime 行为或检索排序。rc.2 Checkout 已通过 `100/100` 个自动化测试；Desktop alpha.1 Matrix 已通过类型检查、构建、六个非 Site Spec 文件共 `84/84` 项测试、Benchmark 重放、通过 Desktop 源码／Runtime CLI 安装 Lens Tarball 与配置组合。已发布 Desktop UI／Market、Windows 与完整交互式模型 Session 仍是独立验收面。
+- 支持精确的 Harness `0.1.1-rc.2`、`0.1.2-rc.1`、`0.1.5-alpha.1` Registry 组件图，并保留独立验证的历史 Desktop `0.1.2-alpha.1` 组件图。rc.6 Profile 继续使用 Lens rc.9。
+- Harness 移除 `JsonValue` 转导出后，改从公共工具输出契约推导 JSON 类型；所有默认开发组件一起升到 `0.1.2-rc.1`。
+- 验证打包插件的真实搜索／调用、严格 Peer 的 Profile 安装，以及没有混版或 Lens 嵌套的 Harness 包。CI 按精确版本验证；两个工具入口和检索排序保持不变。
+- 更新存在漏洞的间接依赖，并把本地候选版和已发布 rc.9 的安装命令明确分开。
 
 ### rc.9 改了什么
 
@@ -359,7 +331,7 @@ MCP Lens 不是沙箱：stdio Server 仍会在宿主机执行，HTTP Server 仍�
 - 安全问题：阅读 [`SECURITY.md`](SECURITY.md)，不要在公开 Issue 中披露未修复漏洞。
 - 参与贡献：阅读 [`CONTRIBUTING.md`](https://github.com/labmimors/dsh-mcp-lens/blob/v0.1.0-rc.9/CONTRIBUTING.md)。
 - 搜索质量：[提交脱敏后的搜索 Miss](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml)，帮助把真实失败转成回归 Fixture。
-- Release Candidate：[`v0.1.0-rc.10`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.10)。
+- 已发布版本：[`v0.1.0-rc.9`](https://github.com/labmimors/dsh-mcp-lens/releases/tag/v0.1.0-rc.9)；本 Checkout 准备 rc.10。
 
 DeepSeek Harness 当前通过带有 [`dsh-plugin`](https://github.com/topics/dsh-plugin) Topic 的公开 GitHub 仓库发现社区插件，并支持从 GitHub、tarball 或 npm 包安装。详见官方[插件发布教程](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.zh.md)。
 
