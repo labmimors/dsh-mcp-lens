@@ -4,7 +4,6 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import { CallId } from '@deepseek-ai/dsh-llm'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import Tools from '@deepseek-ai/dsh-tools'
 import * as Lens from '../src/index.js'
@@ -70,7 +69,7 @@ async function execute(
 ): Promise<Awaited<ReturnType<typeof ctx.tools.execute>>> {
   callSequence += 1
   return await ctx.tools.execute({
-    callId: CallId(`lens-test-${callSequence}`),
+    callId: `lens-test-${callSequence}` as Parameters<typeof ctx.tools.execute>[0]['callId'],
     name,
     arguments: arguments_,
     signal: new AbortController().signal,
@@ -170,6 +169,41 @@ describe('dsh-mcp-lens real Harness + MCP integration', () => {
     })
     expect(denied.isError).toBe(true)
     if (denied.isError) expect(denied.error.message).toMatch(/blocked by allowTools\/denyTools/)
+  })
+
+  it.each(['summary', 'empty', 'duplicate', 'resource'] as const)(
+    'makes structured identifiers available in Native output with %s content', async (format) => {
+      const { ctx } = await harness({ servers: [{
+        ...fixtureServer(),
+        args: ['--import', 'tsx', join(ROOT, 'tests', 'structured-result-fixture.ts')],
+      }] })
+      const result = await execute(ctx, 'mcp_call', {
+        server: 'fixture', tool: 'lookup_customer', arguments: { format },
+      })
+      const value = valueOf<{ structuredContent: { customerId: string } }>(result)
+      const text = result.content.filter(block => block.type === 'text').map(block => block.text).join('\n')
+      expect(text).toContain(value.structuredContent.customerId)
+      expect(text.split(value.structuredContent.customerId)).toHaveLength(2)
+      expect(text).not.toContain('PRIVATE_RESOURCE_MUST_NOT_APPEAR')
+      expect(text).not.toContain('PRIVATE_META_MUST_NOT_APPEAR')
+      if (format === 'summary') expect(text).toContain('Customer found.')
+      if (format === 'resource') expect(text).toContain('[resource: content discarded]')
+    },
+  )
+
+  it('preserves structured recovery details in Native MCP error output', async () => {
+    const { ctx } = await harness({ servers: [{
+      ...fixtureServer(),
+      args: ['--import', 'tsx', join(ROOT, 'tests', 'structured-result-fixture.ts')],
+    }] })
+    const result = await execute(ctx, 'mcp_call', {
+      server: 'fixture', tool: 'lookup_customer', arguments: { format: 'error' },
+    })
+    expect(result.isError).toBe(true)
+    const text = result.content.filter(block => block.type === 'text').map(block => block.text).join('\n')
+    expect(text).toContain('Customer found.')
+    expect(text).toMatch(/"customerId":"[0-9a-f-]{36}"/)
+    expect(text).not.toContain('PRIVATE_META_MUST_NOT_APPEAR')
   })
 
   it('fails closed when allowTools is omitted', async () => {

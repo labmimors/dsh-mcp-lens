@@ -1,0 +1,997 @@
+{
+  "date": "2026-09-10",
+  "harness": "0.1.2-rc.1",
+  "model": "Codex agent",
+  "fixture": "Two local MCP stdio servers; synthetic commerce records; 16 tools",
+  "beforeCommit": "4d4c7fc74c7032c8c4a0e21719e2699fe284fa88",
+  "afterCommit": "da94e538d7c098bde5eabde6e5a2ed269c6c8310",
+  "modelRuns": [
+    {
+      "arm": "lens",
+      "task": "chinese-login-paraphrase",
+      "count": 16,
+      "prompt": "只查 EU 工作區：查售后单里无法登录的问题，报告工单编号和状态。",
+      "status": "complete",
+      "finalText": "{\"ticketId\":\"LOGIN_15c0e4539b55\",\"status\":\"open\"}",
+      "trace": [
+        {
+          "name": "mcp_search",
+          "arguments": {
+            "query": "EU 工作区 售后 工单 搜索 无法登录",
+            "limit": 5
+          },
+          "elapsedMs": 127.16108399999939,
+          "isError": false,
+          "nativeText": "eu/search_support_tickets\n  EU workspace. 搜尋支援工單、客戶售後問題、退款及無法登入的問題。只回傳真實工單。\n  inputSchema: {\"type\":\"object\",\"properties\":{\"關鍵字\":{\"type\":\"string\"}},\"required\":[\"關鍵字\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\nus/search_support_tickets\n  US workspace. 搜尋支援工單、客戶售後問題、退款及無法登入的問題。只回傳真實工單。\n  inputSchema: {\"type\":\"object\",\"properties\":{\"關鍵字\":{\"type\":\"string\"}},\"required\":[\"關鍵字\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}",
+          "value": {
+            "results": [
+              {
+                "server": "eu",
+                "name": "search_support_tickets",
+                "description": "EU workspace. 搜尋支援工單、客戶售後問題、退款及無法登入的問題。只回傳真實工單。",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "關鍵字": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "關鍵字"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 0.122753,
+                "matchedTerms": [
+                  "法登"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "us",
+                "name": "search_support_tickets",
+                "description": "US workspace. 搜尋支援工單、客戶售後問題、退款及無法登入的問題。只回傳真實工單。",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "關鍵字": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "關鍵字"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 0.122753,
+                "matchedTerms": [
+                  "法登"
+                ],
+                "fresh": true
+              }
+            ],
+            "unavailable": []
+          }
+        },
+        {
+          "name": "mcp_call",
+          "arguments": {
+            "server": "eu",
+            "tool": "search_support_tickets",
+            "arguments": {
+              "關鍵字": "无法登录"
+            }
+          },
+          "elapsedMs": 2.7266660000022966,
+          "isError": false,
+          "nativeText": "{\"tickets\":[{\"id\":\"LOGIN_15c0e4539b55\",\"subject\":\"無法登入\",\"status\":\"open\"}]}",
+          "value": {
+            "server": "eu",
+            "tool": "search_support_tickets",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"tickets\":[{\"id\":\"LOGIN_15c0e4539b55\",\"subject\":\"無法登入\",\"status\":\"open\"}]}"
+              }
+            ]
+          }
+        }
+      ],
+      "score": {
+        "passed": true,
+        "cleanScope": true,
+        "backendEvidence": true,
+        "correctAnswer": true,
+        "toolCalls": 1,
+        "errorCalls": 0,
+        "searchCalls": 1
+      },
+      "build": "after"
+    },
+    {
+      "arm": "stock",
+      "task": "chinese-login-paraphrase",
+      "count": 16,
+      "prompt": "只查 EU 工作區：查售后单里无法登录的问题，报告工单编号和状态。",
+      "status": "complete",
+      "finalText": "{\"ticketId\":\"LOGIN_15c0e4539b55\",\"status\":\"open\"}",
+      "trace": [
+        {
+          "name": "mcp__eu__search_support_tickets",
+          "arguments": {
+            "關鍵字": "无法登录"
+          },
+          "elapsedMs": 3.532875000004424,
+          "isError": false,
+          "nativeText": "{\"tickets\":[{\"id\":\"LOGIN_15c0e4539b55\",\"subject\":\"無法登入\",\"status\":\"open\"}]}",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"tickets\":[{\"id\":\"LOGIN_15c0e4539b55\",\"subject\":\"無法登入\",\"status\":\"open\"}]}"
+              }
+            ]
+          }
+        }
+      ],
+      "score": {
+        "passed": true,
+        "cleanScope": true,
+        "backendEvidence": true,
+        "correctAnswer": true,
+        "toolCalls": 1,
+        "errorCalls": 0,
+        "searchCalls": 0
+      },
+      "build": "after"
+    },
+    {
+      "arm": "lens",
+      "task": "structured-three-step-order",
+      "count": 16,
+      "prompt": "Use the structured customer lookup to find alice@example.test in EU, then find the latest order and report its orderId, shipment status, amount and currency. Obtain all identifiers from returned data. Do not query US or switch to the plain-text customer lookup.",
+      "status": "complete",
+      "finalText": "{\"error\":\"EU structured customer lookup reported success but returned no visible customerId, so the latest order cannot be retrieved without inventing an identifier.\"}",
+      "trace": [
+        {
+          "name": "mcp_search",
+          "arguments": {
+            "query": "structured customer lookup email region",
+            "limit": 5
+          },
+          "elapsedMs": 126.9719589999986,
+          "isError": false,
+          "nativeText": "eu/lookup_customer_structured\n  EU workspace. Find the current customer by email. The authoritative customerId is in structuredContent.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\nus/lookup_customer_structured\n  US workspace. Find the current customer by email. The authoritative customerId is in structuredContent.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\neu/lookup_customer\n  EU workspace. Find the current customer by email. Returns customerId for list_orders.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\nus/lookup_customer\n  US workspace. Find the current customer by email. Returns customerId for list_orders.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\neu/lookup_customer_archive\n  EU workspace. Find old archived customer notes. Not the current customer record.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}",
+          "value": {
+            "results": [
+              {
+                "server": "eu",
+                "name": "lookup_customer_structured",
+                "description": "EU workspace. Find the current customer by email. The authoritative customerId is in structuredContent.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 4.315246,
+                "matchedTerms": [
+                  "structured",
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "us",
+                "name": "lookup_customer_structured",
+                "description": "US workspace. Find the current customer by email. The authoritative customerId is in structuredContent.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 4.315246,
+                "matchedTerms": [
+                  "structured",
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "eu",
+                "name": "lookup_customer",
+                "description": "EU workspace. Find the current customer by email. Returns customerId for list_orders.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 1.342644,
+                "matchedTerms": [
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "us",
+                "name": "lookup_customer",
+                "description": "US workspace. Find the current customer by email. Returns customerId for list_orders.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 1.342644,
+                "matchedTerms": [
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "eu",
+                "name": "lookup_customer_archive",
+                "description": "EU workspace. Find old archived customer notes. Not the current customer record.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 1.311219,
+                "matchedTerms": [
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              }
+            ],
+            "unavailable": []
+          }
+        },
+        {
+          "name": "mcp_call",
+          "arguments": {
+            "server": "eu",
+            "tool": "lookup_customer_structured",
+            "arguments": {
+              "email": "alice@example.test"
+            }
+          },
+          "elapsedMs": 2.1405000000013388,
+          "isError": false,
+          "nativeText": "Customer found. Use the returned customerId to list orders.",
+          "value": {
+            "server": "eu",
+            "tool": "lookup_customer_structured",
+            "content": [
+              {
+                "type": "text",
+                "text": "Customer found. Use the returned customerId to list orders."
+              }
+            ],
+            "structuredContent": {
+              "customerId": "cus_dadc059d060b",
+              "region": "eu"
+            }
+          }
+        }
+      ],
+      "score": {
+        "passed": false,
+        "cleanScope": true,
+        "backendEvidence": false,
+        "correctAnswer": false,
+        "toolCalls": 1,
+        "errorCalls": 0,
+        "searchCalls": 1
+      },
+      "build": "before"
+    },
+    {
+      "arm": "lens",
+      "task": "structured-three-step-order",
+      "count": 16,
+      "prompt": "Use the structured customer lookup to find alice@example.test in EU, then find the latest order and report its orderId, shipment status, amount and currency. Obtain all identifiers from returned data. Do not query US or switch to the plain-text customer lookup.",
+      "status": "complete",
+      "finalText": "{\"orderId\":\"ord_dadc059d060b\",\"status\":\"delivered\",\"amount\":83.75,\"currency\":\"EUR\"}",
+      "trace": [
+        {
+          "name": "mcp_search",
+          "arguments": {
+            "query": "structured customer lookup email region",
+            "limit": 3
+          },
+          "elapsedMs": 108.08304200000566,
+          "isError": false,
+          "nativeText": "eu/lookup_customer_structured\n  EU workspace. Find the current customer by email. The authoritative customerId is in structuredContent.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\nus/lookup_customer_structured\n  US workspace. Find the current customer by email. The authoritative customerId is in structuredContent.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\neu/lookup_customer\n  EU workspace. Find the current customer by email. Returns customerId for list_orders.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}",
+          "value": {
+            "results": [
+              {
+                "server": "eu",
+                "name": "lookup_customer_structured",
+                "description": "EU workspace. Find the current customer by email. The authoritative customerId is in structuredContent.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 4.315246,
+                "matchedTerms": [
+                  "structured",
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "us",
+                "name": "lookup_customer_structured",
+                "description": "US workspace. Find the current customer by email. The authoritative customerId is in structuredContent.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 4.315246,
+                "matchedTerms": [
+                  "structured",
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "eu",
+                "name": "lookup_customer",
+                "description": "EU workspace. Find the current customer by email. Returns customerId for list_orders.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 1.342644,
+                "matchedTerms": [
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              }
+            ],
+            "unavailable": []
+          }
+        },
+        {
+          "name": "mcp_call",
+          "arguments": {
+            "server": "eu",
+            "tool": "lookup_customer_structured",
+            "arguments": {
+              "email": "alice@example.test"
+            }
+          },
+          "elapsedMs": 2.293874999995751,
+          "isError": false,
+          "nativeText": "Customer found. Use the returned customerId to list orders.\n{\"customerId\":\"cus_dadc059d060b\",\"region\":\"eu\"}",
+          "value": {
+            "server": "eu",
+            "tool": "lookup_customer_structured",
+            "content": [
+              {
+                "type": "text",
+                "text": "Customer found. Use the returned customerId to list orders."
+              }
+            ],
+            "structuredContent": {
+              "customerId": "cus_dadc059d060b",
+              "region": "eu"
+            }
+          }
+        },
+        {
+          "name": "mcp_search",
+          "arguments": {
+            "server": "eu",
+            "query": "list_orders latest order shipment status amount currency",
+            "limit": 3
+          },
+          "elapsedMs": 0.7735419999953592,
+          "isError": false,
+          "nativeText": "eu/get_order_status\n  EU workspace. Get shipment status and amount for an orderId returned by list_orders.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"orderId\":{\"type\":\"string\"}},\"required\":[\"orderId\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\neu/list_orders\n  EU workspace. List current customer orders using the exact customerId returned by customer lookup.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"customerId\":{\"type\":\"string\"}},\"required\":[\"customerId\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\neu/lookup_customer\n  EU workspace. Find the current customer by email. Returns customerId for list_orders.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}",
+          "value": {
+            "results": [
+              {
+                "server": "eu",
+                "name": "get_order_status",
+                "description": "EU workspace. Get shipment status and amount for an orderId returned by list_orders.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "orderId"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 3.635745,
+                "matchedTerms": [
+                  "list",
+                  "order",
+                  "shipment",
+                  "statu",
+                  "amount"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "eu",
+                "name": "list_orders",
+                "description": "EU workspace. List current customer orders using the exact customerId returned by customer lookup.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "customerId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "customerId"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 2.187923,
+                "matchedTerms": [
+                  "list",
+                  "order"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "eu",
+                "name": "lookup_customer",
+                "description": "EU workspace. Find the current customer by email. Returns customerId for list_orders.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 0.181366,
+                "matchedTerms": [
+                  "list",
+                  "order"
+                ],
+                "fresh": true
+              }
+            ],
+            "unavailable": []
+          }
+        },
+        {
+          "name": "mcp_call",
+          "arguments": {
+            "server": "eu",
+            "tool": "list_orders",
+            "arguments": {
+              "customerId": "cus_dadc059d060b"
+            }
+          },
+          "elapsedMs": 1.0809169999993173,
+          "isError": false,
+          "nativeText": "{\"orders\":[{\"orderId\":\"ord_dadc059d060b\",\"date\":\"2026-09-09\"}]}",
+          "value": {
+            "server": "eu",
+            "tool": "list_orders",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"orders\":[{\"orderId\":\"ord_dadc059d060b\",\"date\":\"2026-09-09\"}]}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mcp_call",
+          "arguments": {
+            "server": "eu",
+            "tool": "get_order_status",
+            "arguments": {
+              "orderId": "ord_dadc059d060b"
+            }
+          },
+          "elapsedMs": 1.0276670000021113,
+          "isError": false,
+          "nativeText": "{\"orderId\":\"ord_dadc059d060b\",\"status\":\"delivered\",\"amount\":83.75,\"currency\":\"EUR\"}",
+          "value": {
+            "server": "eu",
+            "tool": "get_order_status",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"orderId\":\"ord_dadc059d060b\",\"status\":\"delivered\",\"amount\":83.75,\"currency\":\"EUR\"}"
+              }
+            ]
+          }
+        }
+      ],
+      "score": {
+        "passed": true,
+        "cleanScope": true,
+        "backendEvidence": true,
+        "correctAnswer": true,
+        "toolCalls": 3,
+        "errorCalls": 0,
+        "searchCalls": 2
+      },
+      "build": "after"
+    },
+    {
+      "arm": "stock",
+      "task": "structured-three-step-order",
+      "count": 16,
+      "prompt": "Use the structured customer lookup to find alice@example.test in EU, then find the latest order and report its orderId, shipment status, amount and currency. Obtain all identifiers from returned data. Do not query US or switch to the plain-text customer lookup.",
+      "status": "complete",
+      "finalText": "{\"error\":\"The EU structured customer lookup returned no visible customerId or structuredContent, so the latest order cannot be queried without inventing an identifier.\"}",
+      "trace": [
+        {
+          "name": "mcp__eu__lookup_customer_structured",
+          "arguments": {
+            "email": "alice@example.test"
+          },
+          "elapsedMs": 2.983749999999418,
+          "isError": false,
+          "nativeText": "Customer found. Use the returned customerId to list orders.",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "Customer found. Use the returned customerId to list orders."
+              }
+            ],
+            "structuredContent": {
+              "customerId": "cus_dadc059d060b",
+              "region": "eu"
+            }
+          }
+        }
+      ],
+      "score": {
+        "passed": false,
+        "cleanScope": true,
+        "backendEvidence": false,
+        "correctAnswer": false,
+        "toolCalls": 1,
+        "errorCalls": 0,
+        "searchCalls": 0
+      },
+      "build": "after"
+    },
+    {
+      "arm": "lens",
+      "task": "timeout-then-query",
+      "count": 16,
+      "prompt": "Check the EU slow health endpoint once. If it times out, do not retry it; look up EU customer alice@example.test and report the customerId, noting that the health check timed out.",
+      "status": "complete",
+      "finalText": "{\"customerId\":\"cus_a0a88bbf87cf\",\"health\":\"timeout\"}",
+      "trace": [
+        {
+          "name": "mcp_search",
+          "arguments": {
+            "query": "EU slow health endpoint and EU customer lookup by email",
+            "limit": 5
+          },
+          "elapsedMs": 121.59229100000812,
+          "isError": false,
+          "nativeText": "eu/slow_health_check\n  EU workspace. Check the slow health endpoint. If it times out, use lookup_customer for an ordinary healthy query.\n  inputSchema: {\"type\":\"object\",\"properties\":{},\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\nus/slow_health_check\n  US workspace. Check the slow health endpoint. If it times out, use lookup_customer for an ordinary healthy query.\n  inputSchema: {\"type\":\"object\",\"properties\":{},\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\neu/lookup_customer\n  EU workspace. Find the current customer by email. Returns customerId for list_orders.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\nus/lookup_customer\n  US workspace. Find the current customer by email. Returns customerId for list_orders.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}\n\neu/lookup_customer_archive\n  EU workspace. Find old archived customer notes. Not the current customer record.\n  inputSchema: {\"type\":\"object\",\"properties\":{\"email\":{\"type\":\"string\",\"format\":\"email\",\"pattern\":\"^(?!\\\\.)(?!.*\\\\.\\\\.)([A-Za-z0-9_'+\\\\-\\\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\\\-]*\\\\.)+[A-Za-z]{2,}$\"}},\"required\":[\"email\"],\"$schema\":\"http://json-schema.org/draft-07/schema#\"}\n  annotations: {\"readOnlyHint\":true,\"destructiveHint\":false}",
+          "value": {
+            "results": [
+              {
+                "server": "eu",
+                "name": "slow_health_check",
+                "description": "EU workspace. Check the slow health endpoint. If it times out, use lookup_customer for an ordinary healthy query.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {},
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 5.597326,
+                "matchedTerms": [
+                  "slow",
+                  "health",
+                  "endpoint",
+                  "lookup"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "us",
+                "name": "slow_health_check",
+                "description": "US workspace. Check the slow health endpoint. If it times out, use lookup_customer for an ordinary healthy query.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {},
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 5.597326,
+                "matchedTerms": [
+                  "slow",
+                  "health",
+                  "endpoint",
+                  "lookup"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "eu",
+                "name": "lookup_customer",
+                "description": "EU workspace. Find the current customer by email. Returns customerId for list_orders.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 1.187303,
+                "matchedTerms": [
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "us",
+                "name": "lookup_customer",
+                "description": "US workspace. Find the current customer by email. Returns customerId for list_orders.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 1.187303,
+                "matchedTerms": [
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              },
+              {
+                "server": "eu",
+                "name": "lookup_customer_archive",
+                "description": "EU workspace. Find old archived customer notes. Not the current customer record.",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ],
+                  "$schema": "http://json-schema.org/draft-07/schema#"
+                },
+                "annotations": {
+                  "readOnlyHint": true,
+                  "destructiveHint": false
+                },
+                "score": 1.159513,
+                "matchedTerms": [
+                  "lookup",
+                  "email"
+                ],
+                "fresh": true
+              }
+            ],
+            "unavailable": []
+          }
+        },
+        {
+          "name": "mcp_call",
+          "arguments": {
+            "server": "eu",
+            "tool": "slow_health_check",
+            "arguments": {}
+          },
+          "elapsedMs": 353.69566700000723,
+          "isError": true,
+          "nativeText": "Error: mcp_call: \"eu/slow_health_check\" failed: dsh-mcp-lens(eu): tools/call \"slow_health_check\" failed: MCP error -32001: Request timed out",
+          "error": "mcp_call: \"eu/slow_health_check\" failed: dsh-mcp-lens(eu): tools/call \"slow_health_check\" failed: MCP error -32001: Request timed out"
+        },
+        {
+          "name": "mcp_call",
+          "arguments": {
+            "server": "eu",
+            "tool": "lookup_customer",
+            "arguments": {
+              "email": "alice@example.test"
+            }
+          },
+          "elapsedMs": 1.4265830000076676,
+          "isError": false,
+          "nativeText": "{\"customerId\":\"cus_a0a88bbf87cf\",\"email\":\"alice@example.test\",\"region\":\"eu\"}",
+          "value": {
+            "server": "eu",
+            "tool": "lookup_customer",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"customerId\":\"cus_a0a88bbf87cf\",\"email\":\"alice@example.test\",\"region\":\"eu\"}"
+              }
+            ]
+          }
+        }
+      ],
+      "score": {
+        "passed": true,
+        "cleanScope": true,
+        "backendEvidence": true,
+        "correctAnswer": true,
+        "toolCalls": 2,
+        "errorCalls": 1,
+        "searchCalls": 1
+      },
+      "build": "after"
+    },
+    {
+      "arm": "stock",
+      "task": "timeout-then-query",
+      "count": 16,
+      "prompt": "Check the EU slow health endpoint once. If it times out, do not retry it; look up EU customer alice@example.test and report the customerId, noting that the health check timed out.",
+      "status": "complete",
+      "finalText": "{\"customerId\":\"cus_a0a88bbf87cf\",\"health\":\"timeout\"}",
+      "trace": [
+        {
+          "name": "mcp__eu__slow_health_check",
+          "arguments": {},
+          "elapsedMs": 356.0920000000042,
+          "isError": true,
+          "nativeText": "Error: MCP error -32001: Request timed out",
+          "error": "MCP error -32001: Request timed out"
+        },
+        {
+          "name": "mcp__eu__lookup_customer",
+          "arguments": {
+            "email": "alice@example.test"
+          },
+          "elapsedMs": 1.615417000008165,
+          "isError": false,
+          "nativeText": "{\"customerId\":\"cus_a0a88bbf87cf\",\"email\":\"alice@example.test\",\"region\":\"eu\"}",
+          "value": {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"customerId\":\"cus_a0a88bbf87cf\",\"email\":\"alice@example.test\",\"region\":\"eu\"}"
+              }
+            ]
+          }
+        }
+      ],
+      "score": {
+        "passed": true,
+        "cleanScope": true,
+        "backendEvidence": true,
+        "correctAnswer": true,
+        "toolCalls": 2,
+        "errorCalls": 1,
+        "searchCalls": 0
+      },
+      "build": "after"
+    }
+  ],
+  "scriptedTaskResults": {
+    "toolsPerCatalog": [
+      16,
+      1000
+    ],
+    "before": {
+      "stock": {
+        "passed": 10,
+        "total": 12
+      },
+      "lens": {
+        "passed": 10,
+        "total": 12
+      }
+    },
+    "after": {
+      "stock": {
+        "passed": 10,
+        "total": 12
+      },
+      "lens": {
+        "passed": 12,
+        "total": 12
+      }
+    }
+  },
+  "regression": {
+    "testsPassed": 178,
+    "queryRankingsUnchanged": 12,
+    "lensSchemas": 2,
+    "lensSchemaUtf8Bytes": 1114
+  },
+  "installedPublicMcp": {
+    "testedAt": "2026-09-10T02:36:39.455Z",
+    "lens": "0.1.0-rc.10",
+    "harness": "0.1.2-rc.1",
+    "endpoint": "https://modelcontextprotocol.io/mcp",
+    "installedProfile": "web",
+    "schemas": 2,
+    "discoveredAllowedTools": 2,
+    "search": "pass",
+    "call": "pass",
+    "deniedCall": "pass",
+    "modelVisibleCharacters": 8321
+  }
+}

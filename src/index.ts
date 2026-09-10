@@ -10,7 +10,7 @@
 import { randomUUID } from 'node:crypto'
 import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
-import { defineTool, type JsonValue } from '@deepseek-ai/dsh-tools'
+import { defineTool, type ToolOutputDefinition } from '@deepseek-ai/dsh-tools'
 import {
   ToolCatalog,
   catalogToolFromRemote,
@@ -32,6 +32,10 @@ export * from './policy.js'
 
 export const name = 'mcp-lens'
 export const inject = ['tools']
+
+// Harness moved JsonValue between packages. Derive it from the public output
+// contract so old and new hosts share the same type without a transitive import.
+type JsonValue = Parameters<ToolOutputDefinition['render']>[1]
 
 const MAX_TIMER_DELAY_MS = 2_147_483_647
 const DEFAULTS = Object.freeze({
@@ -623,9 +627,13 @@ function renderMcpResult(content: readonly JsonValue[], structuredContent?: Json
     const mime = typeof block.mimeType === 'string' ? ` ${block.mimeType}` : ''
     parts.push(`[${type}${mime} content]`)
   }
-  if (parts.length > 0) return parts.join('\n')
-  if (structuredContent !== undefined) return JSON.stringify(structuredContent)
-  return '(MCP tool returned no content)'
+  // Native models receive rendered content, not the canonical value. A text
+  // summary must not hide structured IDs needed by a subsequent tool call.
+  if (structuredContent !== undefined) {
+    const structuredText = JSON.stringify(structuredContent)
+    if (!parts.some(part => part.trim() === structuredText)) parts.push(structuredText)
+  }
+  return parts.length > 0 ? parts.join('\n') : '(MCP tool returned no content)'
 }
 
 function unknownServerMessage(server: string, configured: readonly string[]): string {

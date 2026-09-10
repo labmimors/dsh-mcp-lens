@@ -6,7 +6,6 @@ import { createRequire } from 'node:module'
 import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { Context } from '@deepseek-ai/cordis'
-import { CallId } from '@deepseek-ai/dsh-llm'
 import { apply as applyStockMcpClient, type Config as StockMcpConfig } from '@deepseek-ai/dsh-mcp-client'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import ToolRuntime from '@deepseek-ai/dsh-tools'
@@ -167,9 +166,11 @@ const RETRIEVAL_CORPUS: readonly RetrievalCase[] = [
 
 let callSequence = 0
 
-function nextCallId(label: string): CallId {
+type RuntimeCallId = Parameters<Context['tools']['execute']>[0]['callId']
+
+function nextCallId(label: string): RuntimeCallId {
   callSequence += 1
-  return CallId(`mcp-lens-benchmark-${label}-${callSequence}`)
+  return `mcp-lens-benchmark-${label}-${callSequence}` as RuntimeCallId
 }
 
 function utf8JsonBytes(value: unknown): number {

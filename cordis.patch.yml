@@ -1,6 +1,4 @@
-# MCP Lens contributes exactly two model-facing tools. Servers ship empty:
-# every configured MCP server is trusted executable or network capability and
-# must be selected by the profile owner.
+# Configure MCP servers and allowed tools in your profile's cordis.patch.yml.
 - insert:
     - id: mcp-lens
       name: dsh-mcp-lens
@@ -20,6 +18,6 @@
         maxCursorBytes: 4096
         searchLimitDefault: 5
         searchLimitMax: 10
-        # Fail closed: explicitly opt capabilities in by exact server/tool glob.
+        # Match server/tool names; denyTools takes priority.
         allowTools: []
         denyTools: []
