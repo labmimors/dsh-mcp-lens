@@ -627,9 +627,13 @@ function renderMcpResult(content: readonly JsonValue[], structuredContent?: Json
     const mime = typeof block.mimeType === 'string' ? ` ${block.mimeType}` : ''
     parts.push(`[${type}${mime} content]`)
   }
-  if (parts.length > 0) return parts.join('\n')
-  if (structuredContent !== undefined) return JSON.stringify(structuredContent)
-  return '(MCP tool returned no content)'
+  // Native models receive rendered content, not the canonical value. A text
+  // summary must not hide structured IDs needed by a subsequent tool call.
+  if (structuredContent !== undefined) {
+    const structuredText = JSON.stringify(structuredContent)
+    if (!parts.some(part => part.trim() === structuredText)) parts.push(structuredText)
+  }
+  return parts.length > 0 ? parts.join('\n') : '(MCP tool returned no content)'
 }
 
 function unknownServerMessage(server: string, configured: readonly string[]): string {

@@ -396,7 +396,7 @@ try {
     desktopRoot,
   )
   const testReport = await readJson(testReportPath)
-  if (!testReport.success || testReport.numTotalTests !== 84 || testReport.numPassedTests !== 84) {
+  if (!testReport.success || testReport.numTotalTests !== 89 || testReport.numPassedTests !== 89) {
     throw new Error(`Unexpected Desktop alpha test result: ${JSON.stringify({
       success: testReport.success,
       total: testReport.numTotalTests,
