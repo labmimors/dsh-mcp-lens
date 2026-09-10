@@ -5,14 +5,22 @@
 [![verify](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml/badge.svg)](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**先搜索大型 MCP 工具库，再调用需要的工具。**
+**1,000 个 MCP 工具，两个入口。需要时再加载准确的 Schema。**
+
+![MCP Lens 通过搜索和调用连接 1,000 个工具；组件测试中常驻 MCP 工具定义仅占 1,114 字节](assets/mcp-lens-overview.zh-CN.svg)
+
+**[安装](#install) · [试算 1,000 个工具](https://labmimors.github.io/dsh-mcp-lens/) · [查看产品测试](docs/PRODUCT_TESTS.zh-CN.md)**
+
+大型工具库会在模型开始处理任务前就占用上下文。MCP Lens 缩小常驻 MCP 工具定义，跨服务器查找相关工具，并保留下一步调用需要的返回数据。
 
 MCP Lens 为 DeepSeek Harness 提供两个模型可见工具：
 
 1. `mcp_search` 搜索相关工具，返回它们的准确输入 Schema。
 2. `mcp_call` 按明确的 `server/tool` 调用工具，返回结果及其中的结构化数据。
 
-这两个工具定义的 JSON 合计 **1,114 字节**，不会随工具库增大。远端工具的 Schema 随搜索结果进入对话。连接按需建立，重复搜索会复用目录索引。
+这两个工具定义的 JSON 合计 **1,114 字节**，不会随工具库增大。在 1,000 个工具的组件测试中，直接客户端的工具定义占 **647,962 字节**。远端工具的 Schema 随搜索结果进入对话。连接按需建立，重复搜索会复用目录索引。
+
+新版也修复了多步流程：客户 ID 与文字摘要一起返回时，模型仍能读到 ID，并继续查询订单。测试中的数据流程从 **10/12 提升至 12/12**。[查看 9 月 10 日测试结果](docs/PRODUCT_TESTS.zh-CN.md)。
 
 它适合分布在多个 MCP Server 上的几十到几千个工具。搜索会多一步；如果只有几个工具，而且几乎每次请求都要用，官方直接客户端更简单。
 
@@ -22,11 +30,11 @@ MCP Lens 为 DeepSeek Harness 提供两个模型可见工具：
 
 使用 Node.js `^22.19.0 || >=24.0.0` 和 Harness `0.1.2-rc.1`。截至 2026 年 9 月 10 日，Harness 的 npm `latest` 和 `next` 都指向这个版本。
 
-Lens rc.10 可从下面的源码分支安装。npm 上已发布的仍是适用于 Harness `0.1.0-rc.6` 的 rc.9。
+按以下步骤从主分支构建 Lens rc.10。npm 上已发布的仍是适用于 Harness `0.1.0-rc.6` 的 rc.9。
 
 ```sh
 npm install -g @deepseek-ai/dsh@0.1.2-rc.1
-git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git
+git clone https://github.com/labmimors/dsh-mcp-lens.git
 cd dsh-mcp-lens
 npm ci --ignore-scripts
 npm run build
@@ -170,6 +178,12 @@ dsh --profile web
 模型任务在 Codex 中运行，通过真实 Harness `ToolRuntime` 和 MCP Server 调用工具。任务、结果和复现命令见[产品测试](docs/PRODUCT_TESTS.zh-CN.md)。
 
 早期实验：[2026 年 8 月 14 日 DeepSeek V4 Flash 实测](docs/LIVE_DEEPSEEK_PILOT.zh-CN.md)。
+
+## 用你的工具库试一试
+
+打开[工具 Schema 计算器](https://labmimors.github.io/dsh-mcp-lens/)，加载 1,000 个工具的示例，或粘贴你导出的工具定义，对比常驻 Schema 大小。用 **Copy share link**、**Copy Markdown** 或 **Download card** 把测量结果分享给同事。计算在浏览器内完成，分享链接包含数值结果。
+
+遇到搜不到正确工具的查询？[提交一个最小搜索示例](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml)，便于我们复现。也可以在 [DSH Directory](https://dsh.directory/plugins/labmimors/dsh-mcp-lens) 浏览项目。
 
 ## 开发
 

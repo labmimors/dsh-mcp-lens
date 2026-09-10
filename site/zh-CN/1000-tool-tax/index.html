@@ -116,7 +116,7 @@
           <p><a href="../../">本地目录测量页</a>支持脱敏后的工具数组、<code>{"tools":[...]}</code>、<code>{"schemas":[...]}</code> 或记录的 <code>request.header.tools</code>。页面只在浏览器里计算标准 <code>JSON.stringify(...)</code> 的 UTF-8 字节，不上传粘贴内容。</p>
           <p>npm 当前提供 rc.9。使用 DeepSeek Harness <code>0.1.2-rc.1</code>，从源码安装 rc.10：</p>
           <pre><code>npm install -g @deepseek-ai/dsh@0.1.2-rc.1
-git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git
+git clone https://github.com/labmimors/dsh-mcp-lens.git
 cd dsh-mcp-lens
 npm ci --ignore-scripts
 npm run build

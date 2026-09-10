@@ -5,14 +5,22 @@ English | [简体中文](README.zh-CN.md)
 [![verify](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml/badge.svg)](https://github.com/labmimors/dsh-mcp-lens/actions/workflows/verify.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Search a large MCP catalog, then call the tool you need.**
+**1,000 MCP tools. Two interfaces. Exact schemas when you need them.**
+
+![MCP Lens routes a 1,000-tool catalog through search and call; the component fixture uses 1,114 bytes of standing MCP definitions](assets/mcp-lens-overview.svg)
+
+**[Install](#install) · [Try the 1,000-tool calculator](https://labmimors.github.io/dsh-mcp-lens/) · [See product tests](docs/PRODUCT_TESTS.md)**
+
+Large tool catalogs take up room before the model starts solving your task. MCP Lens keeps the standing MCP definitions small, finds relevant tools across servers, and preserves the returned data needed by the next call.
 
 MCP Lens gives DeepSeek Harness two model-facing tools:
 
 1. `mcp_search` finds relevant tools and returns their exact input schemas.
 2. `mcp_call` calls a specific `server/tool` and returns its result, including structured data.
 
-The two tool definitions occupy **1,114 bytes of JSON**, regardless of catalog size. Remote schemas enter the conversation when search returns them. Connections open on demand, and repeated searches reuse the catalog index.
+The two tool definitions occupy **1,114 bytes of JSON**, regardless of catalog size. In the 1,000-tool component fixture, the direct client's definitions occupy **647,962 bytes**. Remote schemas enter the conversation when search returns them. Connections open on demand, and repeated searches reuse the catalog index.
+
+The latest version also fixes multi-step workflows: a customer ID returned alongside a text summary stays visible, so the model can use it to look up the customer's order. The tested data flows improved from **10/12 to 12/12**. [Read the September 10 results](docs/PRODUCT_TESTS.md).
 
 This works well for dozens to thousands of tools spread across MCP servers. Search adds a step; for a few tools used on nearly every request, the official direct MCP client is simpler.
 
@@ -22,11 +30,11 @@ This works well for dozens to thousands of tools spread across MCP servers. Sear
 
 Use Node.js `^22.19.0 || >=24.0.0` and Harness `0.1.2-rc.1`. As of September 10, 2026, Harness's npm `latest` and `next` tags point to this version.
 
-Lens rc.10 is available from the source branch below. The published npm package is still rc.9, which targets Harness `0.1.0-rc.6`.
+Build Lens rc.10 from the main branch below. The published npm package is still rc.9, which targets Harness `0.1.0-rc.6`.
 
 ```sh
 npm install -g @deepseek-ai/dsh@0.1.2-rc.1
-git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git
+git clone https://github.com/labmimors/dsh-mcp-lens.git
 cd dsh-mcp-lens
 npm ci --ignore-scripts
 npm run build
@@ -170,6 +178,12 @@ The latest change makes structured results visible to the model, including ident
 The model tasks ran in Codex through real Harness `ToolRuntime` and MCP servers. See [Product tests](docs/PRODUCT_TESTS.md) for the tasks, results, and reproduction commands.
 
 Earlier experiment: [DeepSeek V4 Flash pilot, August 14, 2026](docs/LIVE_DEEPSEEK_PILOT.md).
+
+## Try it on your catalog
+
+Open the [schema calculator](https://labmimors.github.io/dsh-mcp-lens/), load the 1,000-tool sample or paste your exported tool definitions, and compare the standing schema size. Use **Copy share link**, **Copy Markdown**, or **Download card** to share your measurements with teammates. Calculation runs in your browser; the share link contains the numeric result.
+
+Have a query that misses the right tool? [Send a minimal search example](https://github.com/labmimors/dsh-mcp-lens/issues/new?template=search_miss.yml) so we can reproduce it. You can also browse MCP Lens in the [DSH Directory](https://dsh.directory/plugins/labmimors/dsh-mcp-lens).
 
 ## Development
 

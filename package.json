@@ -1,7 +1,7 @@
 {
   "name": "dsh-mcp-lens",
   "version": "0.1.0-rc.10",
-  "description": "Cut MCP context and API cost in DeepSeek Harness with two model-facing tools, lazy discovery, and exact-schema calls",
+  "description": "Search large MCP catalogs in DeepSeek Harness with two tools, on-demand schemas, and structured results for multi-step workflows",
   "keywords": [
     "deepseek",
     "deepseek-harness",
@@ -33,6 +33,8 @@
     "src",
     "assets/mcp-lens-comparison.svg",
     "assets/mcp-lens-comparison.zh-CN.svg",
+    "assets/mcp-lens-overview.svg",
+    "assets/mcp-lens-overview.zh-CN.svg",
     "npm-shrinkwrap.json",
     "cordis.patch.yml",
     "README.md",

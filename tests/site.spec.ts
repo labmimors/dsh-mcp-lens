@@ -313,7 +313,7 @@ describe('catalog calculator publishing contract', () => {
       expect(html).not.toContain('2026-08-15')
       expect(html).not.toMatch(/<script(?!\s+type="application\/ld\+json")/)
       expect(html).toContain(`DeepSeek Harness ${harnessPilotVersion}`)
-      expect(html).toContain('git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git')
+      expect(html).toContain('git clone https://github.com/labmimors/dsh-mcp-lens.git')
       expect(html).not.toContain(`/releases/download/v${lensReleaseCandidate}/`)
       expect(html).not.toContain('/releases/download/v0.1.0-rc.6/dsh-mcp-lens-0.1.0-rc.6.tgz')
     }
@@ -500,7 +500,7 @@ describe('catalog calculator publishing contract', () => {
     ])
     for (const page of pages) {
       expect(page).toContain(`npm install -g @deepseek-ai/dsh@${harnessCompatibilityVersion}`)
-      expect(page).toContain('git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git')
+      expect(page).toContain('git clone https://github.com/labmimors/dsh-mcp-lens.git')
       expect(page).toContain('npm ci --ignore-scripts')
       expect(page).toContain('npm run build')
       expect(page).toContain('npm pack --ignore-scripts')

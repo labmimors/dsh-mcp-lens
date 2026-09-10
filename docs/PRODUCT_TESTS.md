@@ -53,7 +53,7 @@ The scripted driver checks data flow; it does not ask a model to choose tools.
 
 The [test results and tool traces](product-tests/2026-09-10.json) include the
 before/after results. The structured-output regression tests live in
-[`tests/integration.spec.ts`](https://github.com/labmimors/dsh-mcp-lens/blob/fix/dsh-rc2-compat/tests/integration.spec.ts).
+[`tests/integration.spec.ts`](https://github.com/labmimors/dsh-mcp-lens/blob/main/tests/integration.spec.ts).
 
 Run the regression suite from a source checkout:
 

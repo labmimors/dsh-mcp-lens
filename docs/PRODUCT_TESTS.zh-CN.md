@@ -48,7 +48,7 @@ MCP 服务器，共 16 个工具。模型自行选择工具和参数，测试根
 
 [测试结果和工具调用记录](product-tests/2026-09-10.json) 包含修复前后的结果。
 结构化输出的回归测试位于
-[`tests/integration.spec.ts`](https://github.com/labmimors/dsh-mcp-lens/blob/fix/dsh-rc2-compat/tests/integration.spec.ts)。
+[`tests/integration.spec.ts`](https://github.com/labmimors/dsh-mcp-lens/blob/main/tests/integration.spec.ts)。
 
 在源码目录运行回归测试：
 
