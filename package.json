@@ -45,6 +45,9 @@
     "SUPPORT.md",
     "docs/LIVE_DEEPSEEK_PILOT.md",
     "docs/LIVE_DEEPSEEK_PILOT.zh-CN.md",
+    "docs/PRODUCT_TESTS.md",
+    "docs/PRODUCT_TESTS.zh-CN.md",
+    "docs/product-tests/2026-09-10.json",
     "LICENSE"
   ],
   "author": "dsh-mcp-lens contributors",

@@ -111,15 +111,17 @@
             <section><h3>Probably keep direct tools</h3><ul><li>A few fixed tools</li><li>Most tools are used every turn</li><li>Minimum first-step latency matters most</li><li>The model already receives a small schema surface</li></ul></section>
           </div>
 
-          <h2 id="reproduce">Measure before you install</h2>
+          <h2 id="reproduce">Install MCP Lens</h2>
           <p>The <a href="../">local-only catalog calculator</a> accepts a sanitized tool array, <code>{"tools":[...]}</code>, <code>{"schemas":[...]}</code>, or a recorded <code>request.header.tools</code> payload. It calculates canonical <code>JSON.stringify(...)</code> UTF-8 bytes in your browser and does not upload the pasted schemas.</p>
-          <p>The rc.10 Release page is the source for both the reviewed <code>.tgz</code> asset and its SHA-256 digest. Download the file, compare the local digest with that exact asset value, and only then install the local path:</p>
-          <pre><code>curl -fL -o dsh-mcp-lens-0.1.0-rc.10.tgz https://github.com/labmimors/dsh-mcp-lens/releases/download/v0.1.0-rc.10/dsh-mcp-lens-0.1.0-rc.10.tgz
-shasum -a 256 dsh-mcp-lens-0.1.0-rc.10.tgz
-# Compare with the SHA-256 shown for the .tgz on the rc.10 Release page.
-dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.10.tgz
-dsh --profile web</code></pre>
-          <p>The repository includes a reproducible component benchmark runner, a dated live-pilot method with aggregate usage accounting, tests, and security limits. If search misses a real tool, share a sanitized case in the <a href="https://github.com/labmimors/dsh-mcp-lens/discussions/11">MCP Catalog Challenge</a>; real counterexamples are more useful than praise.</p>
+          <p>npm currently provides rc.9. Install rc.10 from source with DeepSeek Harness <code>0.1.2-rc.1</code>:</p>
+          <pre><code>npm install -g @deepseek-ai/dsh@0.1.2-rc.1
+git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git
+cd dsh-mcp-lens
+npm ci --ignore-scripts
+npm run build
+npm pack --ignore-scripts
+dsh plugin --profile web add ./dsh-mcp-lens-0.1.0-rc.10.tgz</code></pre>
+          <p>The repository includes the benchmark runner and full pilot results. If search misses a tool, share a sanitized example in the <a href="https://github.com/labmimors/dsh-mcp-lens/discussions/11">MCP Catalog Challenge</a>.</p>
         </div>
 
         <footer class="article-footer">

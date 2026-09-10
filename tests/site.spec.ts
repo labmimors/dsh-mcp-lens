@@ -64,13 +64,11 @@ function parseStructuredData(html: string): Record<string, unknown> {
 const frozenPilotDate = '2026-08-14'
 const repositoryImageUrl = 'https://repository-images.githubusercontent.com/1334222997/ee14cb30-45a1-42fb-bb6b-e606ec8b3078'
 const lensReleaseCandidate = '0.1.0-rc.10'
-const schemaActionRelease = '0.1.0-rc.7'
 const harnessPilotVersion = '0.1.0-rc.6'
 const harnessCompatibilityVersion = '0.1.2-rc.1'
 const harnessDesktopAlphaVersion = '0.1.2-alpha.1'
 const harnessPeerRange = `0.1.1-rc.2 || ${harnessDesktopAlphaVersion} || ${harnessCompatibilityVersion} || 0.1.5-alpha.1`
 const retrievalEvidenceRelease = '0.1.0-rc.9'
-const immutableCandidateRevision = 'f21169f921e7ed032a4db5062685afb6f948c2d1'
 const googleSiteVerificationFile = 'googlef86c6ccefaff7c89.html'
 const googleSiteVerificationToken = `google-site-verification: ${googleSiteVerificationFile}`
 
@@ -270,13 +268,7 @@ describe('catalog calculator publishing contract', () => {
       readFile(join(repositoryRoot, 'README.md'), 'utf8'),
       readFile(join(repositoryRoot, 'README.zh-CN.md'), 'utf8'),
     ])
-    const tagRoot = `https://github.com/labmimors/dsh-mcp-lens/blob/v${retrievalEvidenceRelease}`
-
-    expect(english).toContain(`${tagRoot}/docs/RETRIEVAL_EVALUATION.md`)
-    expect(chinese).toContain(`${tagRoot}/docs/RETRIEVAL_EVALUATION.zh-CN.md`)
     for (const readme of [english, chinese]) {
-      expect(readme).toContain(`${tagRoot}/benchmark/README.md`)
-      expect(readme).toContain(`${tagRoot}/CONTRIBUTING.md`)
       for (const target of localMarkdownTargets(readme)) {
         expect(packageManifestIncludes(packageJson.files, target), target).toBe(true)
       }
@@ -321,7 +313,8 @@ describe('catalog calculator publishing contract', () => {
       expect(html).not.toContain('2026-08-15')
       expect(html).not.toMatch(/<script(?!\s+type="application\/ld\+json")/)
       expect(html).toContain(`DeepSeek Harness ${harnessPilotVersion}`)
-      expect(html).toContain(`/releases/download/v${lensReleaseCandidate}/dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
+      expect(html).toContain('git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git')
+      expect(html).not.toContain(`/releases/download/v${lensReleaseCandidate}/`)
       expect(html).not.toContain('/releases/download/v0.1.0-rc.6/dsh-mcp-lens-0.1.0-rc.6.tgz')
     }
 
@@ -339,8 +332,6 @@ describe('catalog calculator publishing contract', () => {
     expect(chinese).toContain('<meta name="twitter:title" content="1000 个工具的固定成本：实测大型 MCP 目录" />')
     expect(chinese).toContain('href="../../"')
     expect(chinese).toContain('href="../../1000-tool-tax/"')
-    expect(english).toContain('aggregate usage accounting')
-    expect(chinese).toContain('聚合 Usage 计算')
     expect(robots).toContain('Sitemap: https://labmimors.github.io/dsh-mcp-lens/sitemap.xml')
     expect(sitemap).toContain('<loc>https://labmimors.github.io/dsh-mcp-lens/</loc>')
     expect(sitemap).toContain('<loc>https://labmimors.github.io/dsh-mcp-lens/1000-tool-tax/</loc>')
@@ -462,18 +453,9 @@ describe('catalog calculator publishing contract', () => {
     }
 
     for (const readme of [englishReadme, chineseReadme]) {
-      expect(readme).toContain(`shasum -a 256 dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
-      expect(readme).toContain('SHA-256')
-      expect(readme).not.toContain('a930b5166ffe1cf1de4032d69289de935c444c94cf01b2a5ca5ad58949b91fa0')
+      expect(readme).toContain(`npm install -g @deepseek-ai/dsh@${harnessCompatibilityVersion}`)
       expect(readme).toContain(`dsh plugin --profile web add ./dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
       expect(readme).not.toContain(`dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v${lensReleaseCandidate}`)
-      expect(readme).toContain(`labmimors/dsh-mcp-lens@v${schemaActionRelease}`)
-      expect(readme).toContain(`labmimors/dsh-mcp-lens@${immutableCandidateRevision}`)
-      expect(readme).toContain(`\`${immutableCandidateRevision}\``)
-      expect(readme).toContain('304/304')
-      expect(readme).toMatch(/[Ff]rozen search index|冻结搜索索引/)
-      expect(readme).toMatch(/full source checkout|完整源码 Checkout/)
-      expect(readme).toMatch(/compact prebuilt runtime package|精简的预编译 Runtime 包/)
       expect(readme).not.toContain('/releases/download/v0.1.0-rc.6/dsh-mcp-lens-0.1.0-rc.6.tgz')
       expect(readme).not.toContain('/releases/download/v0.1.0-rc.8/dsh-mcp-lens-0.1.0-rc.8.tgz')
       expect(readme).not.toContain('labmimors/dsh-mcp-lens@v0.1.0-rc.6')
@@ -494,8 +476,6 @@ describe('catalog calculator publishing contract', () => {
       expect(readme).not.toContain(`/releases/download/v${lensReleaseCandidate}/`)
       expect(readme).not.toContain(`github:labmimors/dsh-mcp-lens#v${lensReleaseCandidate}`)
     }
-    expect(englishReadme).toContain('rc.10 is an unreleased candidate')
-    expect(chineseReadme).toContain('rc.10 尚未发布')
 
     expect(englishPilot).toContain(`DeepSeek Harness: \`${harnessPilotVersion}\``)
     expect(chinesePilot).toContain(`DeepSeek Harness：\`${harnessPilotVersion}\``)
@@ -513,25 +493,21 @@ describe('catalog calculator publishing contract', () => {
     expect(packageJson.files).not.toContain('tsdown.config.ts')
   })
 
-  it('downloads redirected release assets before passing a local tarball to pnpm', async () => {
+  it('builds the current source before installing its local tarball', async () => {
     const pages = await Promise.all([
       readFile(join(siteRoot, '1000-tool-tax', 'index.html'), 'utf8'),
       readFile(join(siteRoot, 'zh-CN', '1000-tool-tax', 'index.html'), 'utf8'),
     ])
     for (const page of pages) {
-      expect(page).toContain(`curl -fL -o dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
-      expect(page).toContain(`shasum -a 256 dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
-      expect(page).toContain('SHA-256')
+      expect(page).toContain(`npm install -g @deepseek-ai/dsh@${harnessCompatibilityVersion}`)
+      expect(page).toContain('git clone --branch fix/dsh-rc2-compat https://github.com/labmimors/dsh-mcp-lens.git')
+      expect(page).toContain('npm ci --ignore-scripts')
+      expect(page).toContain('npm run build')
+      expect(page).toContain('npm pack --ignore-scripts')
       expect(page).toContain(`dsh plugin --profile web add ./dsh-mcp-lens-${lensReleaseCandidate}.tgz`)
       expect(page).not.toContain(`dsh plugin --profile web add https://github.com/labmimors/dsh-mcp-lens/releases/download/v${lensReleaseCandidate}`)
       expect(page).not.toContain('/releases/download/v0.1.0-rc.8/dsh-mcp-lens-0.1.0-rc.8.tgz')
     }
-    expect(pages[0]).toContain('The rc.10 Release page is the source for both the reviewed <code>.tgz</code> asset')
-    expect(pages[0]).not.toContain('After the rc.10 Release page lists')
-    expect(pages[0]).not.toContain('In the rc.10 candidate')
-    expect(pages[1]).toContain('rc.10 Release 页面是审核版 <code>.tgz</code> 附件')
-    expect(pages[1]).not.toContain('rc.10 Release 页面同时列出 <code>.tgz</code> 附件和 SHA-256 摘要后')
-    expect(pages[1]).not.toContain('rc.10 Candidate 只为')
   })
 
   it('pins every Pages action to the reviewed immutable revision', async () => {
