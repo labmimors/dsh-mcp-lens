@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { harnessPackages, resolveHarnessCompatibility } from './harness-compatibility.mjs'
 import { collectDeepSeekHarnessPackages, findLensPrivateHarnessPackages } from './harness-package-graph.mjs'
+import { resolveHarnessPins } from './resolve-harness-pins.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
@@ -53,6 +54,7 @@ try {
   const tarballPath = join(temporaryRoot, basename(filename))
   const tarballSha256 = createHash('sha256').update(await readFile(tarballPath)).digest('hex')
   const consumerRoot = join(temporaryRoot, 'consumer')
+  const harnessPins = await resolveHarnessPins(harnessPackages, harnessVersion)
   const relativeTarballPath = relative(consumerRoot, tarballPath).split(sep).join('/')
   await mkdir(consumerRoot)
   await writeFile(join(consumerRoot, 'package.json'), `${JSON.stringify({
@@ -61,7 +63,7 @@ try {
     type: 'module',
     dependencies: {
       '@deepseek-ai/cordis': manifest.devDependencies['@deepseek-ai/cordis'],
-      ...Object.fromEntries(harnessPackages.map(packageName => [packageName, harnessVersion])),
+      ...harnessPins,
       'dsh-mcp-lens': `file:${relativeTarballPath}`,
     },
   }, null, 2)}\n`)

@@ -43,7 +43,7 @@ The scripted driver checks data flow; it does not ask a model to choose tools.
 
 ## Regression checks
 
-- Type checking, build, and 175 tests passed.
+- Type checking, build, and 178 tests passed.
 - The existing 12 search queries returned the same rankings.
 - At 1,000 remote tools, Lens still exposes 2 schemas totaling 1,114 UTF-8 bytes.
 - The packaged plugin installed and completed search, call, and denied-call checks

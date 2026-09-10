@@ -37,20 +37,11 @@ jobs:
       - name: Install
         run: npm ci --ignore-scripts
 
-      # Old/new prerelease peers cannot reuse the baseline DSH lock graph.
-      # Resolve alternative hosts afresh without changing the committed lock;
-      # packed/profile checks below reject any mixed DSH versions.
       - name: Select exact alternative Harness graph
         if: matrix.harness != '0.1.2-rc.1'
         env:
           HARNESS_VERSION: ${{ matrix.harness }}
-        run: >-
-          npm install --ignore-scripts --no-save --package-lock=false --no-audit --no-fund
-          "@deepseek-ai/dsh-llm@$HARNESS_VERSION"
-          "@deepseek-ai/dsh-mcp-client@$HARNESS_VERSION"
-          "@deepseek-ai/dsh-subprocess@$HARNESS_VERSION"
-          "@deepseek-ai/dsh-system-prompt@$HARNESS_VERSION"
-          "@deepseek-ai/dsh-tools@$HARNESS_VERSION"
+        run: node scripts/select-harness-version.mjs --harness-version "$HARNESS_VERSION"
 
       - name: Verify
         run: npm run verify

@@ -162,7 +162,7 @@ The latest change makes structured results visible to the model, including ident
 
 | Test | Result |
 |---|---|
-| Automated tests | 175 passed |
+| Automated tests | 178 passed |
 | Three Codex model tasks with 16 synthetic tools | Lens 3/3; official direct client 2/3 |
 | Data workflows across 16- and 1,000-tool catalogs | 12/12 after the fix; 10/12 before |
 | Lens tool definitions | 2 schemas, 1,114 B |

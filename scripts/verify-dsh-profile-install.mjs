@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { resolveHarnessCompatibility } from './harness-compatibility.mjs'
 import { assertNoProfileHarnessPackages, collectDeepSeekHarnessPackages } from './harness-package-graph.mjs'
+import { resolveHarnessPins } from './resolve-harness-pins.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
@@ -72,11 +73,13 @@ try {
   const tarballSha256 = createHash('sha256').update(await readFile(tarballPath)).digest('hex')
 
   const harnessRoot = join(temporaryRoot, 'harness')
+  const harnessPins = await resolveHarnessPins(['@deepseek-ai/dsh'], harnessVersion)
   await mkdir(harnessRoot)
   await writeFile(join(harnessRoot, 'package.json'), `${JSON.stringify({
     name: 'dsh-mcp-lens-profile-smoke',
     private: true,
     packageManager: `pnpm@${pnpmVersion}`,
+    pnpm: { overrides: harnessPins },
   }, null, 2)}\n`)
   run(
     corepackCommand,

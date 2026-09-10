@@ -23,7 +23,7 @@ npm run verify:dsh-profile -- --harness-version 0.1.2-rc.1
 
 Repeat with the other supported versions when changing Harness integration. Omitting `--harness-version` uses the development version. Keep the five DSH development packages on the same exact version when upgrading.
 
-The package check runs search, a structured call, and a denied call through the installed Lens package. It checks that Lens exposes two tools and shares the host's DSH packages. The profile check uses a temporary `DSH_HOME`, installs the plugin, and checks the resulting configuration. Both checks work without a model API key. Add `--output /tmp/lens-profile.json` to save the profile check's results.
+The package check runs search, a structured call, and a denied call through the installed Lens package. It checks that Lens exposes two tools and shares the host's DSH packages. The profile check uses a temporary `DSH_HOME`, installs the plugin, and checks the resulting configuration. Both checks pin indirect DSH dependencies to the selected version and work without a model API key. Add `--output /tmp/lens-profile.json` to save the profile check's results.
 
 The profile runner uses Corepack and pnpm `10.20.0`. If Corepack is unavailable:
 
